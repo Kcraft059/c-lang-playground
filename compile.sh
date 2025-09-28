@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ -f '$1' ]]; then
-	rm $1
+if [[ -f './out/$1' ]]; then
+	rm ./out/$1
 fi
 
 if [[ -n "$2" && $2 == "true" ]]; then
