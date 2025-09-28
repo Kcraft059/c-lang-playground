@@ -9,9 +9,9 @@ if [[ -n "$2" && $2 == "true" ]]; then
 fi
 
 gcc $1.c \
-	-o ./$1 \
+	-o ./out/$1 \
 	$sanitize
 
 if [[ $? == 0 ]]; then
-	./$1
+	./out/$1
 fi
