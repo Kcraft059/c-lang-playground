@@ -1,4 +1,4 @@
-## C lang Test repository
+## C lang Playground repository
 
 Here are some little tests I made while trying to learn C.
 They do not have any real purpose, I might do a project in C/C++ at one point.
