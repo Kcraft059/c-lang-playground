@@ -8,12 +8,14 @@ struct DynamicArray
   int length;
 };
 
-long exponent(int value, int exponent) {
+long exponent(int value, int exponent)
+{
   long returnVal = 1;
-  for (int i = 0; i < exponent; i++) {
+  for (int i = 0; i < exponent; i++)
+  {
     returnVal = returnVal * value;
   }
-  
+
   return returnVal;
 }
 
@@ -91,8 +93,8 @@ int stringToDecimal(char *string, long *outputVar)
   {
     int charIndex = numericChars.array[i];
     int charValue = charAssoc[charIndex];
-    
-    result += (long)charValue*exponent(10,i);
+
+    result += (long)charValue * exponent(10, i);
     // printf("%ld ", (long)charValue*exponent(10,i));
   }
   // printf("\n");
@@ -114,8 +116,7 @@ int main(int nbr, char **params)
     string = params[i];
     printf("Arg %d: \"%s\" ", i, string);
 
-    long result = 0;
-    stringToDecimal(string, &result);
+    long result = stringToDecimal(string, &result);
     result != -1 ? printf("Result : %ld \n", result) : printf("\n");
   }
   return 0;
