@@ -2,5 +2,5 @@
 #include <func.h> 
 
 void printNum(int *num) {
-  printf("Num is %d",*num);
+  printf("Num is %d\n",*num);
 }
