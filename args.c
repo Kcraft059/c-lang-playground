@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <functions.h>
 
 struct DynamicArray
 {
@@ -111,7 +112,7 @@ int stringToDecimal(char *string, long *outputVar)
   return 0;
 }
 
-int main(int nbr, char **params)
+/* int main(int nbr, char **params)
 { // Params is an array of strings (char arrays)
 
   // char string[] = {'T','e','s','t','\0'}; // Heap array of chars
@@ -128,4 +129,4 @@ int main(int nbr, char **params)
     success == 0 ? printf("Result: %ld \n", result) : printf("\n");
   }
   return 0;
-}
+} */
