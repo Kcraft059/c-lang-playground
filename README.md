@@ -12,7 +12,7 @@ They do not have any real purpose, I might do a project in C/C++ at one point.
 #include <stdio.h>
 int main() {
   long unsigned i;
-  for (int i = 0; i < 10000000; i++) {
+  for (i = 0; i < 10000000; i++) {
     long x = i * 2; // A simple operation
   }
   printf("Done : %lu\n",i);
