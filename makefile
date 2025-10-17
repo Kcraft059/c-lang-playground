@@ -6,14 +6,14 @@ IDIR = ./include
 
 LIBS = -lm
 
-_DEPS =
+_DEPS = test.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = test.o func.o
+_OBJ = test.o part.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 CC = gcc
-CFLAGS = -I$(IDIR)
+CFLAGS = -I$(IDIR) -fsanitize=address
 
 
 ## Needed to include dependencies like func.h

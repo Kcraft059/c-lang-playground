@@ -59,7 +59,13 @@ int main()
  * from that on, it reads the number of bytes from the given adress depending on the type size
  *
  * long *x = malloc(sizeof(long));
- * x[0] -> reading from pointer adress -> pointer adress + size of type 
+ * x[0] -> reading from pointer adress -> pointer adress + index * size of type 
  *
- *
+ * you can retrieve array size for stack arrays
+ * 
+ * int array[5];
+ * sizeof(array) -> size of type * number of items
+ * 
+ * int * array = malloc(5 * sizeof(int))
+ * sizeof(array) -> size of int* (so size of pointer itself)
  */
