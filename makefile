@@ -5,16 +5,16 @@ OUTDIR = ./out
 ODIR = ./obj
 IDIR = $(SRCDIR)/include
 
-LIBS = -lm
+LIBS = -lm #-framework Carbon -framework SkyLight
 
 _DEPS = define.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.c
+_OBJ = main.o error.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-CC = gcc
-CFLAGS = -I$(IDIR) #-fsanitize=address
+CC = clang # gcc
+CFLAGS = -I$(IDIR) #-fsanitize=address #-F/System/Library/PrivateFrameworks/
 
 
 ## Needed to include dependencies like func.h
