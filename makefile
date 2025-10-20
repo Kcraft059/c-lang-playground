@@ -7,10 +7,10 @@ IDIR = $(SRCDIR)/include
 
 LIBS = -lm
 
-_DEPS = functions.h
+_DEPS = define.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = stringutils.o main.o mathutils.o #test.o part.o
+_OBJ = main.c
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 CC = gcc
