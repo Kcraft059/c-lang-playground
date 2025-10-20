@@ -1,15 +1,16 @@
 #https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 
+SRCDIR = ./src
 OUTDIR = ./out
 ODIR = ./obj
-IDIR = ./include
+IDIR = $(SRCDIR)/include
 
 LIBS = -lm
 
 _DEPS = functions.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = args.o main.o #test.o part.o
+_OBJ = stringutils.o main.o mathutils.o #test.o part.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 CC = gcc
@@ -23,7 +24,7 @@ CFLAGS = -I$(IDIR) #-fsanitize=address
 # $(DEPS) unique purpose is for make to check if they're present and are not directly passed as argument for compilation
 
 ## Make objects with included dependencies 
-$(ODIR)/%.o: %.c $(DEPS) 
+$(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS) 
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 ## Make exec with all objects

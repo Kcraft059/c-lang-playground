@@ -1,26 +1,9 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <functions.h>
 
-struct DynamicArray
-{
-  int *array;
-  int length;
-};
-
-long exponent(int value, int exponent)
-{
-  long returnVal = 1;
-  for (int i = 0; i < exponent; i++)
-  {
-    returnVal = returnVal * value;
-  }
-
-  return returnVal;
-}
-
-int addToDynArray(struct DynamicArray *originalArray, int value, int method)
+int addToDynArray(DynamicArray *originalArray, int value, int method)
 { // Method 1:append 2:prepend
 
   if (originalArray->length == 0)
@@ -60,7 +43,7 @@ int stringToDecimal(char *string, long *outputVar)
   charValue[0] = possibleChars;
   charValue[1] = charAssoc;
 
-  struct DynamicArray numericChars = {malloc(sizeof(int)), 0};
+  DynamicArray numericChars = {malloc(sizeof(int)), 0};
   int8_t negative = 0;
 
   for (int strlen = 0; (int)string[strlen] != 0; strlen++)
@@ -111,22 +94,3 @@ int stringToDecimal(char *string, long *outputVar)
   free(numericChars.array);
   return 0;
 }
-
-/* int main(int nbr, char **params)
-{ // Params is an array of strings (char arrays)
-
-  // char string[] = {'T','e','s','t','\0'}; // Heap array of chars
-  // params[1] = string; // When referenced using their varname, arrays send pointers
-
-  for (int i = 1; i < nbr; i++) // for (<starting code> ; <check code>; <after code>)
-  {
-    char *string;
-    string = params[i];
-    printf("Arg %d: \"%s\" ", i, string);
-
-    long result;
-    int success = stringToDecimal(string, &result);
-    success == 0 ? printf("Result: %ld \n", result) : printf("\n");
-  }
-  return 0;
-} */
