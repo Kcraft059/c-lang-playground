@@ -6,7 +6,7 @@
 /**
  * 
  * This is a piece of my own hideous code (im a piece of shit at coding / in general)
- * Eenjoy ;)
+ * Enjoy ;) (at least it's commented… a bit)
  * 
  */
 
