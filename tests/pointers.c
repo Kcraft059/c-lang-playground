@@ -3,18 +3,15 @@
 #include <string.h>
 
 /* int * */
-void expand_array(int **original_array, int length, int new_length) // Is basically a less shiny realloc()
+void expand_array(int** original_array, int length, int new_length)  // Is basically a less shiny realloc()
 {
   unsigned long byte_length = sizeof(**original_array) * length;
   unsigned long new_byte_length = sizeof(**original_array) * new_length;
-  int *returned_array = malloc(new_byte_length);
+  int* returned_array = malloc(new_byte_length);
 
-  if (length < new_length)
-  {
+  if (length < new_length) {
     memcpy(returned_array, *original_array, byte_length);
-  } 
-  else
-  {
+  } else {
     memcpy(returned_array, *original_array, new_byte_length);
   }
 
@@ -24,10 +21,9 @@ void expand_array(int **original_array, int length, int new_length) // Is basica
   // return returned_array;
 }
 
-int main()
-{
+int main() {
   // int **pointer_array = malloc(4 * sizeof(int *)); // Doesn't need to be a pointer itself
-  int *pointer_array[4];
+  int* pointer_array[4];
   // int *array = malloc(4 * sizeof(int));
   // pointer_array[1] = array;
   // array = NULL; // Can unset value of array since pointer is stored
@@ -37,7 +33,7 @@ int main()
   memcpy(pointer_array[0], tmp, sizeof(tmp));
 
   /* pointer_array[0] =  */
-  //expand_array(&pointer_array[0], 4, 3);
+  // expand_array(&pointer_array[0], 4, 3);
   pointer_array[0] = realloc(pointer_array[0], sizeof(*pointer_array[0]) * 2);
   // pointer_array[0][5] = 3;
 
@@ -59,13 +55,13 @@ int main()
  * from that on, it reads the number of bytes from the given adress depending on the type size
  *
  * long *x = malloc(sizeof(long));
- * x[0] -> reading from pointer adress -> pointer adress + index * size of type 
+ * x[0] -> reading from pointer adress -> pointer adress + index * size of type
  *
  * you can retrieve array size for stack arrays
- * 
+ *
  * int array[5];
  * sizeof(array) -> size of type * number of items
- * 
+ *
  * int * array = malloc(5 * sizeof(int))
  * sizeof(array) -> size of int* (so size of pointer itself)
  */

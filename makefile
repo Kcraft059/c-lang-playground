@@ -1,38 +1,54 @@
 #https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 
-SRCDIR = ./src
-OUTDIR = ./out
-ODIR = ./obj
-IDIR = $(SRCDIR)/include
+# Directories
+SRCDIR := ./src
+HDRDIR := $(SRCDIR)/header
+ODIR   := ./obj
+OUTDIR := ./out
 
-LIBS = -lm #-framework Carbon -framework SkyLight
+# Compiler and flags
+CC := gcc
+CFLAGS := -I$(HDRDIR) -std=c99 # -Wall -Wextra
+LIBS := -lm
 
-_DEPS = define.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+# Find all .c files in SRCDIR (recursively, if you want, use **/*.c instead)
+SRC := $(wildcard $(SRCDIR)/*.c) 
+# could be replaced by plain "main.c"
 
-_OBJ = main.o error.o
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+# Map each .c to its corresponding .o file in ODIR
+OBJ := $(patsubst $(SRCDIR)/%.c, $(ODIR)/%.o, $(SRC)) 
+# could be replaced by plain "main.o"
+# Instead get, $SRC and create .o files accordingly : $(patsubst pattern, replacement, text) : /src/<main>.c -> /obj/<main>.o
 
-CC = clang # gcc
-CFLAGS = -I$(IDIR) #-fsanitize=address #-F/System/Library/PrivateFrameworks/
+# Find all .h files (used for dependency checking)
+DEPS := $(wildcard $(HDRDIR)/*.h) 
+# could be replaced by plain "header.h"
 
+# Final binary output
+TARGET := $(OUTDIR)/exec
 
-## Needed to include dependencies like func.h
+# Default rule
+all: $(TARGET)
+
+## How to build the final executable
+$(TARGET): $(OBJ)
+	@mkdir -p $(OUTDIR)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	@echo "Linked -> $@"
+
+## How to compile each object file
 # kind of function for each *.o, with corresponding .c file
 # $@ -> refers to %.o (<name>:arg)
 # $< refers to %.c (name:<arg>)
 # $(DEPS) unique purpose is for make to check if they're present and are not directly passed as argument for compilation
-
-## Make objects with included dependencies 
-$(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS) 
+$(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
+	@mkdir -p $(ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
+	@echo "Compiled -> $@"
 
-## Make exec with all objects
-$(OUTDIR)/exec: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
+# Cleaning rules
 .PHONY: clean
-
 clean:
 	rm -f $(ODIR)/*.o
-	rm -f $(OUTDIR)/*
+	rm -f $(TARGET)
+	@echo "Cleaned build artifacts"
