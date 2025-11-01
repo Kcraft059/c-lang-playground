@@ -32,6 +32,19 @@ void* __array_init(size_t item_size, size_t capacity, Allocator* a) {  // Initia
   return (void*)self;
 }
 
+void* __array_duplicate(void* source) {
+  if (!source) return NULL;
+  arrayHeader* header = __array_get_header(source);  // Get source header
+
+  if (!header) return NULL;
+  size_t size = header->item_size * header->capacity + sizeof(arrayHeader);
+  void* self = header->allocator->alloc(size);
+
+  memcpy(self, header, size);
+
+  return (void*)((arrayHeader*)self + 1);
+}
+
 int __array_append(void** self, void* value) {      // Adds an element to the end of the array
   arrayHeader* header = __array_get_header(*self);  // Fetch array header
 

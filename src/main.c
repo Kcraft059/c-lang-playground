@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() { // Implementation example
+int main() {  // Implementation example
   Allocator a = {
       .alloc = malloc,
       .realloc = realloc,
@@ -26,13 +26,13 @@ int main() { // Implementation example
   };
   printf("\n");
   array_remove(&dynArray, 12);
-  
-  int* dynArrayb = array(int, &a);
-  
+
+  int* dynArrayb = array_dup(int, dynArray);
+
   array_append(&dynArrayb, &value);
-  
+
   array_merge(&dynArray, dynArrayb);
-  
+
   for (int i = array_length(dynArray) - 1; i >= 0; --i) {
     printf("[%d]", dynArray[i]);
   };

@@ -17,6 +17,8 @@
 
 #define array(type, alloc) \
   ((type*)__array_init(sizeof(type), ARRAY_INITIAL_CAPACITY, alloc))
+#define array_dup(type, source) \
+  ((type*)__array_duplicate(source))
 #define array_append(array_ptr, value) \
   (__array_append((void**)array_ptr, value))
 #define array_pop(array_ptr) \
@@ -48,6 +50,7 @@ typedef struct {
 /// Function definitions
 
 void* __array_init(size_t item_size, size_t capacity, Allocator* a);  // Initializes a dynamic array in memory
+void* __array_duplicate(void* source);                                // Duplicates an array in memory
 int __array_append(void** self, void* value);                         // Adds an element to the end of the array
 int __array_pop(void** self);                                         // Removes element at last index
 int __array_add(void** self, size_t item_index, void* value);         // Add element at index
