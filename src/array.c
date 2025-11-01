@@ -32,7 +32,7 @@ void* __array_init(size_t item_size, size_t capacity, Allocator* a) {  // Initia
   return (void*)self;
 }
 
-void* __array_duplicate(void* source) {
+void* __array_duplicate(void* source) {  // Duplicates an array in memory
   if (!source) return NULL;
   arrayHeader* header = __array_get_header(source);  // Get source header
 
@@ -177,7 +177,7 @@ void* __array_get_header(void* self) {           // Retrieves header pointer
   return (void*)header;
 }
 
-void* __array_resize(void* self, size_t new_size) {
+void* __array_resize(void* self, size_t new_size) { // Resize size in memory∑
   // printf("Resize of %p to %ld items\n", self, new_size);  // Debug
 
   if (!self) return NULL;                          // Prevents use of NULL as input
