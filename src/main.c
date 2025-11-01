@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() {
+int main() { // Implementation example
   Allocator a = {
       .alloc = malloc,
       .realloc = realloc,

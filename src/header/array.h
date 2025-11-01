@@ -52,7 +52,7 @@ int __array_append(void** self, void* value);                         // Adds an
 int __array_pop(void** self);                                         // Removes element at last index
 int __array_add(void** self, size_t item_index, void* value);         // Add element at index
 int __array_remove(void** self, size_t item_index);                   // Remove element at index
-int __array_merge(void** array_a, void* array_b);                    // Create a new array from two dynamic arrays array_a, array_b
+int __array_merge(void** array_a, void* array_b);                     // Create a new array from two dynamic arrays array_a, array_b
 size_t array_length(void* self);                                      // Get length of array
 int array_delete(void* self);                                         // Free array from memory
 

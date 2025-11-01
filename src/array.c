@@ -102,7 +102,7 @@ int __array_remove(void** self, size_t item_index) {  // Remove element at index
   memmove(  // Moves mem to new index : overwritte
       (char*)(*self) + item_index * header->item_size,
       (char*)(*self) + (item_index + 1) * header->item_size,
-      (header->length - item_index) * header->item_size);
+      (header->length - (item_index + 1)) * header->item_size);
 
   header->length--;  // Reduce array length
 
@@ -114,44 +114,31 @@ int __array_remove(void** self, size_t item_index) {  // Remove element at index
   return 1;
 }
 
-int __array_merge(void** array_a, void* array_b) {  // Create a new array from two dynamic arrays array_a, array_b, inheriting array_a properties
-  if (!(*array_a && array_b)) return 0;             // If any array is NULL, error
-  void* self;
+int __array_merge(void** self, void* array_b) {  // Create a new array from two dynamic arrays self, array_b, inheriting array_a properties
+  if (!(*self && array_b)) return 0;             // If any array is NULL, error
 
-  arrayHeader* header_a = __array_get_header(*array_a);
+  arrayHeader* header = __array_get_header(*self);
   arrayHeader* header_b = __array_get_header(array_b);
 
-  if (!(header_a && header_b)) return 0;                     // If any array is NULL, error
-  if (header_a->item_size != header_b->item_size) return 0;  // Type mismatch
+  if (!(header && header_b)) return 0;                     // If any array is NULL, error
+  if (header->item_size != header_b->item_size) return 0;  // Type mismatch
 
-  self = __array_init(header_a->item_size, ARRAY_INITIAL_CAPACITY, header_a->allocator);  // Creates a new dynamic array
-
-  if (!self) return 0;
-
-  size_t size = header_a->length + header_b->length - 1;  // Decrement since, when counting powers of two, 0 is considered as a number eg: 0->31
+  size_t size = header->length + header_b->length - 1;  // Decrement since, when counting powers of two, 0 is considered as a number eg: 0->31
   int i;
   for (i = 0; size > 0; size >>= 1) ++i;  // Count powers of two in size (size >>= 1 -> size /= 2 - bit shifting)
   size = (size_t)(1 << i);                // Set size to upper power of two
 
-  self = __array_resize(self, size);
+  *self = __array_resize(*self, size);
 
-  if (!self) return 0;
-  arrayHeader* header = __array_get_header(self);
+  if (!*self) return 0;
+  header = __array_get_header(*self);
 
-  memcpy(
-      (char*)self + header->length * header->item_size,
-      *array_a,
-      header_a->length * header->item_size);
-  header->length += header_a->length;
-
-  memcpy(
-      (char*)self + header->length * header->item_size,
+  memcpy(  // Appends other array to the end of self
+      (char*)(*self) + header->length * header->item_size,
       array_b,
       header_b->length * header->item_size);
   header->length += header_b->length;
 
-  array_delete(*array_a);
-  *array_a = self;
   return 1;
 }
 
@@ -178,7 +165,7 @@ void* __array_get_header(void* self) {           // Retrieves header pointer
 }
 
 void* __array_resize(void* self, size_t new_size) {
-  // printf("Resize of %p to %ld items\n", self, new_size);  // Debug
+  printf("Resize of %p to %ld items\n", self, new_size);  // Debug
 
   if (!self) return NULL;                          // Prevents use of NULL as input
   arrayHeader* header = __array_get_header(self);  // Gets header info
