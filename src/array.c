@@ -165,7 +165,7 @@ void* __array_get_header(void* self) {           // Retrieves header pointer
 }
 
 void* __array_resize(void* self, size_t new_size) {
-  printf("Resize of %p to %ld items\n", self, new_size);  // Debug
+  // printf("Resize of %p to %ld items\n", self, new_size);  // Debug
 
   if (!self) return NULL;                          // Prevents use of NULL as input
   arrayHeader* header = __array_get_header(self);  // Gets header info
