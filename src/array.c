@@ -77,7 +77,7 @@ int __array_pop(void** self) {                      // Deref element at last ind
   if (header->length * 2 <= header->capacity && header->length >= 1)  // If new length is 2 time smaller than capacity, shrink array unless lenght is <= 1 (to prevent 0 capacity multiplication)
     *self = __array_resize(*self, header->length);
 
-  if (!self) return 0;  // If resize fails
+  if (!*self) return 0;  // If resize fails
 
   return 1;
 }

@@ -12,6 +12,7 @@
 
 #define ARRAY_INITIAL_CAPACITY 1  // > 1
 #define ARRAY_INCREMENT_COEF 2    // > 2
+// TODO Implement hysteresis to prevent realloc back and forth
 
 /// Macros
 
