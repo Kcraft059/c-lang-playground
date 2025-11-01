@@ -48,6 +48,10 @@ $(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 
 # Cleaning rules
 .PHONY: clean
+
+asan: CFLAGS += -fsanitize=address
+asan: $(TARGET)
+
 clean:
 	rm -f $(ODIR)/*.o
 	rm -f $(TARGET)
