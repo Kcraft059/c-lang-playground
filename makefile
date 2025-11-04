@@ -9,7 +9,7 @@ OUTDIR := ./out
 # Compiler and flags
 CC := gcc
 CFLAGS := -I$(HDRDIR) -std=c99 # -Wall -Wextra
-LIBS := -lm
+LIBS := -lncurses
 
 # Find all .c files in SRCDIR (recursively, if you want, use **/*.c instead)
 SRC := $(wildcard $(SRCDIR)/*.c) 
