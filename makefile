@@ -34,7 +34,7 @@ all: $(TARGET)
 $(TARGET): $(OBJ)
 	@mkdir -p $(OUTDIR)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-	@echo "Linked -> $@"
+#@echo "Linked -> $@"
 
 ## How to compile each object file
 # kind of function for each *.o, with corresponding .c file
@@ -44,7 +44,7 @@ $(TARGET): $(OBJ)
 $(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	@mkdir -p $(ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
-	@echo "Compiled -> $@"
+#@echo "Compiled -> $@"
 
 # Cleaning rules
 .PHONY: clean
@@ -55,4 +55,4 @@ asan: $(TARGET)
 clean:
 	rm -f $(ODIR)/*.o
 	rm -f $(TARGET)
-	@echo "Cleaned build artifacts"
+#@echo "Cleaned build artifacts"

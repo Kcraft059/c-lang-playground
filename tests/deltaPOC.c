@@ -1,13 +1,7 @@
-#include <ncurses.h>  // Terminal control utilities
-#include <stdbool.h>  // Meh
-#include <stdio.h>    // Std i/o control
-#include <stdlib.h>   // Memory management
-/// Personnal Libs
-#include <array.h>  // Dynamic array implementation
-#include <snake.h>  // Snake logic implementation
+#include <stdlib.h>
 
 /**
- * Project SNAKEUH
+ * I'll hate myself for not having explained those…
  */
 
 struct diffList {
@@ -32,8 +26,6 @@ void getDelta(void* list_a, void* list_b, struct diffList* list, size_t size, si
         ((uint8_t*)(list->array))[list->length * itemSize + j] = a[index] ^ b[index];
       }
       list->length++;
-
-      //((int*)(list->array))[list->length++] = ((int*)a)[offset] ^ ((int*)b)[offset];
     }
   }
 }
