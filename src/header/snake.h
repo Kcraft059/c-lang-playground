@@ -22,6 +22,7 @@ typedef struct snake snake;
 typedef struct tile tile;
 
 enum movType {  // Movements avail
+  MV_STILL,
   MV_UP,
   MV_DOWN,
   MV_RIGHT,
@@ -45,7 +46,7 @@ struct tile {
   enum tileType type;
 };
 
-struct board {  // A play area
+struct board {  // The play area
   int size_x;
   int size_y;
   bool board_warp;  // If the snake should warp around the whole board when going past the egde
@@ -54,7 +55,6 @@ struct board {  // A play area
 };
 
 struct snake {  // Snake object with all related data
-  int size;
   int score;
   // int speed;
   enum movType direction;
@@ -63,7 +63,7 @@ struct snake {  // Snake object with all related data
 
 /// Global Vars
 
-extern board* snStdBoard;
+extern board* snStdBoard;  // This is the default snake board
 
 /// Functions
 
@@ -73,9 +73,9 @@ void snBResizeBoard(board* self, int x, int y);  // Resizes board limits
 void snBDeleteBoard(board* self);                // Should destroy a board and all related instances
 
 // Board pos system
-bool snBCheckPos(board* targetBoard, coords position);  // Should return a different value depending on item present
-                                                        // Will be a wrapper for multiple checkers :
-                                                        // snSCheckSnake, snBCheckTile
+/* int snBCheckPos(board* targetBoard, coords position);  // Should return a different value depending on item present
+                                                       // Will be a wrapper for multiple checkers :
+                                                       // snSCheckSnake, snBCheckTile */
 // coords __snBTranslatePos(board* targetBoard, coords position);  // In case of warp, should calc new POS for a pos given outside of board limits
 coords snBRngBlankPos(board* targetBoard);
 /* TODO, snake board switching handling logic */
@@ -92,14 +92,17 @@ void snBDelSnake(board* targetBoard, size_t index);  // Removes the snake at ind
 // Board status
 // META, get all differential changes made to the board
 
-board* snBMakeSnapshot(board* object);                 // Duplicates board in memory ( and childrens like tiles and snakes )
-                                                       // This should be done before starting to make changes
-board* snBDiffSnapshot(board** image, board* object);  // This should modify image to reflect only what changed maybe with an XOR MASK
+board* snBMakeSnapshot(board* object);                // Deep memory duplication, returns image
+                                                      // This should be done before starting to make changes
+board* snBDiffSnapshot(board* image, board* object);  // Get delta between image and object
 
 /* This could be done by creating a snapshot of the board and its elements */
 
 // Snake
-void snSMoveHeadPos(snake* self, coords position);                                  // Updates the snake coordinates
-bool snSCheckSnake(snake* self, coords position);                                   // Check for snake presence
-void snSSetSize(snake* self, int size);                                             // Sets snake size
-coords* snBSComputeNxPos(board* targetBoard, snake* self, enum movType direction);  // Computes the value of the next snake positions of the snake
+snake* snSInitSnake(coords pos);                                // Inits a snake at a given position
+void snSDeleteSnake(snake* self);                               // Free snake from memory
+void snSSetSize(snake* self, int size);                         // Sets snake size
+void snSMoveHeadPos(snake* self, coords position);              // Updates the snake coordinates
+int snSGetLength(snake* self);                                  // Get the actual size of the snake
+bool snSCheckSnake(snake* self, coords position);               // Check for snake presence
+coords snSComputeHeadPos(snake* self, enum movType direction);  // Computes the value for the next position of the HEAD

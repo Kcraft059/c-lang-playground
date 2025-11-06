@@ -177,7 +177,7 @@ void* __array_get_header(void* self) {           // Retrieves header pointer
   return (void*)header;
 }
 
-void* __array_resize(void* self, size_t new_size) { // Resize size in memory∑
+void* __array_resize(void* self, size_t new_size) {  // Resize size in memory∑
   // printf("Resize of %p to %ld items\n", self, new_size);  // Debug
 
   if (!self) return NULL;                          // Prevents use of NULL as input
