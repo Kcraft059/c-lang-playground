@@ -1,0 +1,44 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I./src/header",
+      "-std=c99",
+      "-o",
+      "obj/array.o",
+      "src/array.c"
+    ],
+    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
+    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/array.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/array.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I./src/header",
+      "-std=c99",
+      "-o",
+      "obj/main.o",
+      "src/main.c"
+    ],
+    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
+    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/main.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I./src/header",
+      "-std=c99",
+      "-o",
+      "obj/snake.o",
+      "src/snake.c"
+    ],
+    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
+    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/snake.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/snake.o"
+  }
+]

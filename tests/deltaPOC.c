@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 /**
@@ -12,21 +13,29 @@ struct diffList {
 void getDelta(void* list_a, void* list_b, struct diffList* list, size_t size, size_t itemSize) {
   uint8_t* a = list_a;
   uint8_t* b = list_b;
+
   list->array = malloc(size);
   list->length = 0;
   int offset = -1;
+
   for (int i = 0; i < size; ++i) {
+
     uint8_t diff = a[i] ^ b[i];
     if (diff != 0 && offset != i / itemSize) {
       offset = i / itemSize;
       printf("We're at index : %d, pos : %d, a : %d, b: %d\n", i, offset, ((int*)a)[offset], ((int*)b)[offset]);
+
       for (int j = 0; j < itemSize; ++j) {
         int index = offset * itemSize + j;
         printf("We're at offset : %d\n", index);
         ((uint8_t*)(list->array))[list->length * itemSize + j] = a[index] ^ b[index];
       }
+
       list->length++;
+
+      if (1) return;
     }
+    return;
   }
 }
 

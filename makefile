@@ -47,10 +47,13 @@ $(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 #@echo "Compiled -> $@"
 
 # Cleaning rules
-.PHONY: clean
+.PHONY: clean bear
 
 asan: CFLAGS += -fsanitize=address
 asan: $(TARGET)
+
+bear:
+	bear -- make
 
 clean:
 	rm -f $(ODIR)/*.o
