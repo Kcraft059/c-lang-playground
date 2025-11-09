@@ -2,7 +2,7 @@
 
 # Directories
 SRCDIR := ./src
-HDRDIR := $(SRCDIR)/header
+HDRDIR := $(SRCDIR)/include
 ODIR   := ./obj
 OUTDIR := ./out
 
@@ -51,9 +51,6 @@ $(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 
 asan: CFLAGS += -fsanitize=address
 asan: $(TARGET)
-
-bear:
-	bear -- make
 
 clean:
 	rm -f $(ODIR)/*.o

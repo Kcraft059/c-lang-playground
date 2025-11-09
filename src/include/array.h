@@ -34,7 +34,7 @@
 /// Type definition
 
 // Allocator descriptor
-typedef struct {
+typedef const struct {
   void* (*alloc)(size_t size);
   void* (*realloc)(void* ptr, size_t size);
   void (*free)(void* ptr);
