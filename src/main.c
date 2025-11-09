@@ -1,4 +1,3 @@
-#include <_time.h>
 #include <ncurses.h> // Terminal control utilities
 #include <stdbool.h> // Meh
 #include <stdio.h>   // Std i/o control
@@ -11,7 +10,13 @@
 #include <unistd.h>
 
 /**
- * Project SNAKEUH
+ * Project SNAKEUH (POC)
+ *
+ * This is only a proof of concept of a potential implementation of snake logic
+ * TODO:
+ * Refactor game loop to handle separately Visual Update & Logical Update
+ * A score system + menu handling
+ * Add graphical delta handling 
  */
 
 board* mainBoard;
@@ -165,23 +170,19 @@ int main(int argc, char** argv) {
   int key;
   enum movType direction = 0; // Needs to be initialized
 
+  tile foodTile = {.type = T_FOOD};
+  if (setRandomTile(mainBoard, &foodTile))
+    snBAddTile(mainBoard, foodTile);
+
   // Game loop
   while (!exitloop) {
     nanosleep(&updateFreq, NULL); // Respect game updateFreq
 
     key = getch(); // fetch key press from user
 
-    tile foodTile = {.coordinate = {0, 0}, .type = T_FOOD};
-
     switch (key) {
     case 'q':
       exitloop = EX_QUIT;
-      break;
-    case '+':
-      snSSetSize(mainSnake, snSGetLength(mainSnake) + 1);
-      break;
-    case '-':
-      snSSetSize(mainSnake, snSGetLength(mainSnake) - 1);
       break;
     case KEY_LEFT:
       direction = MV_LEFT;
@@ -195,12 +196,20 @@ int main(int argc, char** argv) {
     case KEY_DOWN:
       direction = MV_DOWN;
       break;
+    // Debug
     case 's':
       direction = MV_STILL;
       break;
     case 't':
       if (setRandomTile(mainBoard, &foodTile))
         snBAddTile(mainBoard, foodTile);
+      break;
+    case '+':
+      snSSetSize(mainSnake, snSGetLength(mainSnake) + 1);
+      break;
+    case '-':
+      snSSetSize(mainSnake, snSGetLength(mainSnake) - 1);
+      break;
       break;
     case 410:
       snBResizeBoard(mainBoard, getmaxx(stdscr) - 3, getmaxy(stdscr) - 3);
@@ -210,7 +219,7 @@ int main(int argc, char** argv) {
     // Key check triggers
 
     // Move snake
-    if (!(loopIteration % 2)) { // Every 2 iterations
+    if (!(loopIteration % 3)) { // Every 2 iterations
       coords nextPos;
       bool moveOk;
 
@@ -234,7 +243,7 @@ int main(int argc, char** argv) {
     if (exitloop) break;
 
     // Update loop index
-    loopIteration += loopIteration >= 20 ? -loopIteration : 1;
+    loopIteration += loopIteration >= 30 ? -loopIteration : 1;
 
     // Update board render
     updateBoard(mainBoard);

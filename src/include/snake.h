@@ -79,7 +79,7 @@ coords snBRngPos(board* targetBoard);                        // Get a random coo
 coords snBTranslatePos(board* targetBoard, coords position); // Translates a coordinate out of board
 
 // Board tile
-void snBAddTile(board* targetBoard, tile self);         // Adds a given tile to board
+void snBAddTile(board* targetBoard, tile self);          // Adds a given tile to board
 void snBDelTile(board* targetBoard, coords pos);         // Removes tile at coords from board
 bool snBCheckTile(board*, coords pos, tile* returnTile); // Check for tile at pos, if none return false
 
