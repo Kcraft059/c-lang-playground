@@ -40,5 +40,33 @@
     "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
     "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/snake.c",
     "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/snake.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I./src/include",
+      "-std=c99",
+      "-o",
+      "obj/snakeGL.o",
+      "src/snakeGL.c"
+    ],
+    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
+    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/snakeGL.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/snakeGL.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I./src/include",
+      "-std=c99",
+      "-o",
+      "obj/snakeENG.o",
+      "src/snakeENG.c"
+    ],
+    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
+    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/snakeENG.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/snakeENG.o"
   }
 ]

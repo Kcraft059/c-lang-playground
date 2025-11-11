@@ -1,3 +1,14 @@
+/**-----------------------------------------------------------------------*
+ * ArrayLib by @kcraft059
+ *
+ * This personnal library implements array related concepts in c such as
+ * hashmaps and dynamic arrays. The hashmap and dynamic array
+ * implementations do not share any component.
+ *
+ * No copyright - Last updated: 11/11/2025
+ *-----------------------------------------------------------------------**/
+
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -12,8 +23,9 @@
  */
 
 /// Private functions def
-void* __array_get_header(void* self);
-void* __array_resize(void* self, size_t new_size);
+// Static prevents to be seen by linker
+static void* __array_get_header(void* self);
+static void* __array_resize(void* self, size_t new_size);
 
 /// Public functions
 
@@ -111,7 +123,7 @@ int __array_add(void** self, size_t item_index, void* value) { // Add element at
 
 int __array_remove(void** self, size_t item_index) { // Remove element at index
   arrayHeader* header = __array_get_header(*self);
-  if (!header || item_index > header->length) return 0; // If NULL header or negative index, return error
+  if (!header || item_index >= header->length) return 0; // If NULL header or negative index, return error
 
   memmove( // Moves mem to new index : overwritte
       (char*)(*self) + item_index * header->item_size,
@@ -194,4 +206,191 @@ void* __array_resize(void* self, size_t new_size) { // Resize size in memory∑
 
   self = header + 1; // Point to the array
   return (void*)self;
+}
+
+/**
+ * Hash Map lib implementation
+ * Warning :
+ * This lib doesn't do any check for data integrity, it assumes the user uses it right.
+ * Passing wrong pointers will result in UB.
+ */
+
+/// Private function declaration
+static hash __hashmap_getpreHash(hashMap* self, void* key);    // Get hash for value
+static size_t __hashmap_getIndex(hashMap* self, hash prehash); // Get index for hash
+// static void __hashmap_resize(hashMap* self, size_t capacity);  // Resize & reassign hashmap buckets
+static void __hashmap_bucketAdd(
+    hashMap* targetMap, bucketItem** self, void* data, hash prehash); // Add & reassign bucket item with given prehash in bucket chain starting at self*
+static bool __hashmap_bucketRemove(
+    hashMap* targetMap, bucketItem** self, hash prehash); // Remove & relink bucket item with given prehash in bucket chain starting at self*
+static void* __hashmap_bucketGet(
+    bucketItem* self, hash prehash);                                                              // Get bucket item with given prehash in bucket chain starting at self
+static void __hashmap_bucketChainReassign(bucketItem* self, hashMap* targetMap, Allocator* allc); // Reassign buckets starting at self, to targetMap (if NULL delete chain)
+static inline hash __splitmix64(hash z);                                                          // Generate hash from given number (splitMix64 alg)
+
+/// Function def
+
+hashMap* hashmap_init(size_t initCapacity, hash (*preHashFunc)(void*), Allocator* a) { // Inits the hashmap in memory
+  hashMap* self = a->alloc(sizeof(hashMap));                                           // Allocate memory for hashmap Header
+
+  if (self) {
+    self->capacity = initCapacity;                                   // Set capacity
+    self->prehashFunc = preHashFunc;                                 // Sets the hasher function
+    self->bucketList = a->alloc(sizeof(bucketItem*) * initCapacity); // Allocate memory for all buckets
+    for (size_t i = 0; i < initCapacity; ++i) {                         // Set all pointers to NULL
+      self->bucketList[i] = NULL;
+    }
+    self->itemc = 0;
+    self->allc = a;
+    self->dynamicResize = true;
+  }
+
+  return self;
+}
+
+void hashmap_delete(hashMap* self) { // Erase the hashmap in memory
+  Allocator* a = self->allc;
+
+  for (size_t i = 0; i < self->capacity; i++) { // For each bucket, free
+    bucketItem* bucketChainStart = self->bucketList[i];
+    if (bucketChainStart) {
+      __hashmap_bucketChainReassign(bucketChainStart, NULL, self->allc);
+    }
+  }
+
+  a->free(self->bucketList);
+  a->free(self);
+}
+
+void hashmap_add(hashMap* self, void* data, void* key) {    // Adds data for given key in hashmap
+  if (self->dynamicResize &&                                // If hashmap is dynamic
+      self->itemc > self->capacity * HASHMAP_RESIZE_FACTOR) // If itemc is too high for capacity, resize up
+    hashmap_resize(self, self->capacity * HASHMAP_RESIZE_COEF);
+
+  hash prehash = __hashmap_getpreHash(self, key); // Should be after resize, because index depends on capacity
+  size_t index = __hashmap_getIndex(self, prehash);
+
+  bucketItem** bucket = self->bucketList + index;
+  __hashmap_bucketAdd(self, bucket, data, prehash); // Add data in bucket
+}
+
+bool hashmap_remove(hashMap* self, void* key) {
+  if (self->dynamicResize &&                                  // If hashmap is dynamic
+      self->itemc * HASHMAP_RESIZE_FACTOR < self->capacity && // If itemc is too low for capacity, resize down
+      self->capacity / HASHMAP_RESIZE_COEF > HASHMAP_RESIZE_COEF)
+    hashmap_resize(self, self->capacity / HASHMAP_RESIZE_COEF);
+
+  hash prehash = __hashmap_getpreHash(self, key); // Should be after resize, because index depends on capacity
+  size_t index = __hashmap_getIndex(self, prehash);
+
+  bucketItem** bucket = self->bucketList + index; // Starting pos for bucket chain
+
+  return __hashmap_bucketRemove(self, bucket, prehash); // Remove bucket starting at bucket*
+}
+
+void* hashmap_get(hashMap* self, void* key) {
+  hash prehash = __hashmap_getpreHash(self, key);   // Compute prehash
+  size_t index = __hashmap_getIndex(self, prehash); // Get associated index
+
+  bucketItem* bucket = self->bucketList[index];
+
+  return __hashmap_bucketGet(bucket, prehash); // Check in bucket chain for matching hash
+}
+
+void hashmap_resize(hashMap* self, size_t capacity) { // Resize & reassign hashmap buckets
+  bucketItem** oldMap = self->bucketList;
+  size_t oldMapCapacity = self->capacity;
+
+  self->bucketList = self->allc->alloc(sizeof(bucketItem*) * capacity); // Make a new bucket list
+  for (int i = 0; i < capacity; ++i) {                                  // Set all pointers to NULL
+    self->bucketList[i] = NULL;
+  }
+
+  self->capacity = capacity; // Set new capacity
+  self->itemc = 0;           // Set to 0, since reassign uses bucket add which increments itemc
+
+  for (size_t i = 0; i < oldMapCapacity; i++) { // For each bucket, reassign to new map
+    bucketItem* bucketChainStart = oldMap[i];
+    if (bucketChainStart) {
+      __hashmap_bucketChainReassign(bucketChainStart, self, self->allc);
+    }
+  }
+
+  self->allc->free(oldMap); // Free old map
+}
+
+/// Private function definition
+// bucket handling
+void __hashmap_bucketAdd(hashMap* targetMap, bucketItem** self, void* data, hash prehash) {
+  if (!*self) {                                         // If self is not allocated, alloc it
+    *self = targetMap->allc->alloc(sizeof(bucketItem)); // Init new bucket in memory
+    (*self)->ptr = NULL;                                // Init values
+    (*self)->nextItem = NULL;
+    targetMap->itemc++; // Increase item count
+  }
+
+  if (!(*self)->ptr || (*self)->cached_prehash == prehash) { // If self ptr is NULL or If it's the same hash, replace data
+    (*self)->cached_prehash = prehash;                       // Store hashkey
+    (*self)->ptr = data;                                     // Store data
+    return;
+  }
+
+  // else it is not null, then try to store in nextItem
+  __hashmap_bucketAdd(targetMap, &(*self)->nextItem, data, prehash);
+}
+
+bool __hashmap_bucketRemove(hashMap* targetMap, bucketItem** self, hash prehash) {
+  if (!*self) return false; // If targeted item points to nothing
+
+  if ((*self)->cached_prehash == prehash) { // If targeted element is found
+    bucketItem* next = (*self)->nextItem;
+    targetMap->allc->free(*self); // Free bucket
+    *self = next;                 // Set reference pointer to next item
+    targetMap->itemc--;           // Decrease item count
+    return true;
+  }
+
+  return __hashmap_bucketRemove(targetMap, &(*self)->nextItem, prehash); // If not found
+}
+
+void* __hashmap_bucketGet(bucketItem* self, hash prehash) {
+  if (!self) return NULL; // If ptr passed si NULL
+
+  if (self->cached_prehash == prehash) return self->ptr; // If matching prehash, return ptr of bucket
+
+  return __hashmap_bucketGet(self->nextItem, prehash); // Else try for next item
+}
+
+void __hashmap_bucketChainReassign(bucketItem* self, hashMap* targetMap, Allocator* allc) { // Reassign buckets starting at self, to targetMap, if no targetMap delete all chain
+  if (!self) return;                                                                        // If reached end of chain
+
+  if (targetMap) {
+    size_t index = __hashmap_getIndex(targetMap, self->cached_prehash); // Get index for newmap
+
+    bucketItem** bucket = targetMap->bucketList + index;                     // Starting pos for bucket chain
+    __hashmap_bucketAdd(targetMap, bucket, self->ptr, self->cached_prehash); // Transfer bucket content to new bucket chain
+  }
+
+  bucketItem* next = self->nextItem;
+  allc->free(self); // Delete old bucket from memory
+
+  __hashmap_bucketChainReassign(next, targetMap, allc);
+}
+
+// Hash index functions
+size_t __hashmap_getIndex(hashMap* self, hash prehash) { // Get an index based on given hash key
+  return __splitmix64(prehash) % self->capacity;         // Only calc hash for bucket index
+}
+
+hash __hashmap_getpreHash(hashMap* self, void* key) { // Get hash from key
+  hash prehash = self->prehashFunc(key);
+  return prehash;
+}
+
+hash __splitmix64(hash z) {   // Generate hash from given number (splitMix64 alg)
+  z += 0x9e3779b97f4a7c15ULL; // z acting as seed
+  z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9ULL;
+  z = (z ^ (z >> 27)) * 0x94d049bb133111ebULL;
+  z = z ^ (z >> 31);
+  return z;
 }

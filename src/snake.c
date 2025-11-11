@@ -15,7 +15,7 @@ board* snStdBoard = NULL;
 board* __lastGetSnakeBoard; // Last checked board
 int __NextGetSnakeIndex;    // Last index reached
 
-const Allocator allc = {
+static Allocator allc = {
     .alloc = malloc,
     .realloc = realloc,
     .free = free};
@@ -223,8 +223,3 @@ coords snSComputeHeadPos(snake* self, enum movType direction) { // Computes the 
 
   return headCoord;
 }
-
-// Board status
-board* snBMakeSnapshot(board* object);               // Deep memory duplication, returns image
-                                                     // This should be done before starting to make changes
-board* snBDiffSnapshot(board* image, board* object); // Get delta between image and object

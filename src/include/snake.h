@@ -88,15 +88,6 @@ void snBAddSnake(board* targetBoard, snake* self); // Adds a snake to the board
 snake* snBGetSnake(board* targetBoard);            // Get all snakes from board
 void snBDelSnake(board* targetBoard, snake* self); // Removes the snake at index of the board
 
-// Board status
-// META, get all differential changes made to the board
-
-board* snBMakeSnapshot(board* object);               // Deep memory duplication, returns image
-                                                     // This should be done before starting to make changes
-board* snBDiffSnapshot(board* image, board* object); // Get delta between image and object
-
-/* This could be done by creating a snapshot of the board and its elements */
-
 // Snake
 snake* snSInitSnake(coords pos);                               // Inits a snake at a given position
 void snSDeleteSnake(snake* self);                              // Free snake from memory

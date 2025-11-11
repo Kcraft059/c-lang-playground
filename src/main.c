@@ -16,9 +16,48 @@
  * TODO:
  * Refactor game loop to handle separately Visual Update & Logical Update
  * A score system + menu handling
- * Add graphical delta handling 
+ * Add graphical delta handling
  */
 
+static Allocator allc = {
+    malloc,
+    realloc,
+    free};
+
+hash coordHash(void* value) {
+  coords* coo = value;
+  hash hashResult = (uint64_t)coo->x << 32 | (uint32_t)coo->y;
+
+  return hashResult;
+}
+
+int main(int argc, char** argv) {
+  hashMap* map = hashmap(coordHash, &allc);
+
+  coords key = {0, 0};
+  int data = 5;
+
+  for (key.x = 0; key.x < 100; key.x++) {
+    hashmap_add(map, &data, &key);
+  }
+
+  for (key.x = 0; key.x < 50; key.x++) {
+    hashmap_remove(map, &key);
+  }
+
+  key.x = 50;
+
+  printf("itemc : %ld\n", map->itemc);
+
+  int* result;
+  if ((result = hashmap_get(map, &key))) {
+    printf("Data: %d \n", *result);
+  }
+
+  hashmap_delete(map);
+}
+
+/*
 board* mainBoard;
 snake* mainSnake;
 
@@ -265,3 +304,4 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+ */
