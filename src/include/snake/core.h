@@ -1,14 +1,21 @@
-#include <stdbool.h>
-#include <unistd.h>
-/// Personnal Libs
-#include <array.h>
+/**-----------------------------------------------------------------------*
+ * Snake core logic definition module by @kcraft059
+ *
+ * This module defines the behaviour of the core logic for the snake game,
+ * it implements all board management related functions, entity control, 
+ * update logic etc on which an engine can relly to implement game behaviour
+ *
+ * No copyright - Last updated: 16/11/2025 
+ *-----------------------------------------------------------------------**/
+ 
+#ifndef SNAKE_CORE_H
+#define SNAKE_CORE_H
 
-/**
- * Snake core logic definition module
- */
+#include <array.h> // Personnal array lib
+#include <stdbool.h>
 
 /// Definitions
-
+// Update types
 #define BOARD_RESIZE_UPDT (*(uint64_t*)"BRD_RES\0")
 #define TILE_STATUS_UPDT (*(uint64_t*)"TIL_STS\0")
 #define TILE_REMOVE_UPDT (*(uint64_t*)"TIL_RMV\0")
@@ -64,7 +71,6 @@ struct tileObj {
 };
 
 // Updates Structs
-
 struct boardUpdate {
   uint64_t type; // Associate a key for handler etc… is defined by a num representing a "string" like : "SNK_ENT\0" \0 being a identifier per module
   void* payload;
@@ -120,3 +126,5 @@ void snSDeleteSnake(snake* self);                  // Free snake from memory
 void snSSetSize(snake* self, int size);            // Sets snake size
 void snSMoveHeadPos(snake* self, coords position); // Updates the snake coordinates
 int snSGetSize(snake* self);                       // Get the actual size of the snake
+
+#endif

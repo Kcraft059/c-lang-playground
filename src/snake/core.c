@@ -1,6 +1,6 @@
-#include "array.h"
-#include <snake.h>
-// ----
+#include <snake.h> // Reference
+// ----------------------------
+#include <array.h> // Personnal lib
 #include <stdbool.h>
 #include <string.h>
 

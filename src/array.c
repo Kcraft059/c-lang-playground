@@ -1,27 +1,15 @@
 /**-----------------------------------------------------------------------*
- * ArrayLib by @kcraft059
- *
- * This personnal library implements array related concepts in c such as
- * hashmaps and dynamic arrays. The hashmap and dynamic array
- * implementations do not share any component.
- *
- * No copyright - Last updated: 11/11/2025
- *-----------------------------------------------------------------------**/
-
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-// Personnal lib
-#include <array.h>
-
-/**
  * Array lib implementation
  * Warning :
  * This lib doesn't do any check for data integrity, it assumes the user uses it right.
  * Passing wrong pointers which aren't a dynamic array will result in UB.
- */
+ *-----------------------------------------------------------------------**/
+
+#include <array.h> // Reference
+// ----------------------------
+#include <stdbool.h>
+#include <string.h>
+#include <unistd.h>
 
 /// Private functions def
 // Static prevents to be seen by linker
@@ -142,7 +130,7 @@ bool __array_remove(void** self, size_t item_index) { // Remove element at index
 }
 
 bool __array_merge(void** self, void* array_b) { // Create a new array from two dynamic arrays self, array_b, inheriting array_a properties
-  if (!(*self && array_b)) return false;        // If any array is NULL, error
+  if (!(*self && array_b)) return false;         // If any array is NULL, error
 
   arrayHeader* header = __array_get_header(*self);
   arrayHeader* header_b = __array_get_header(array_b);
@@ -318,12 +306,6 @@ void hashmap_resize(hashMap* self, size_t capacity) { // Resize & reassign hashm
 
   self->allc->free(oldMap); // Free old map
 }
-
-/* 
-// TODO: Implement
-bool hashmap_actOnEach(hashMap* self, hashmapIterFunc func, void* extData) {
-} 
-*/
 
 /// Private function definition
 // bucket handling
