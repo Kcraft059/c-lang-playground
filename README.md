@@ -3,6 +3,13 @@
 Here are some little tests I made while trying to learn C.
 They do not have any real purpose, I might do a project in C/C++ at one point.
 
+## What might be a bit interesting in what i did 
+
+(dynamic array & hashmap implementation)
+
+https://github.com/Kcraft059/c-lang-playground/blob/5f3ef4d7d2930d41c120871fcc9fde015db50bb6/src/include/array.h
+https://github.com/Kcraft059/c-lang-playground/blob/5f3ef4d7d2930d41c120871fcc9fde015db50bb6/src/array.c
+
 > [!NOTE]
 > If you have any ressources / ideas that could help me learn c, feel free to share them here ^^ !
 
