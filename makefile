@@ -12,11 +12,12 @@ CFLAGS := -I$(HDRDIR) -std=c99 # -Wall -Wextra
 LIBS := -lncurses
 
 # Find all .c files in SRCDIR (recursively, if you want, use **/*.c instead)
-SRC := $(wildcard $(SRCDIR)/*.c) 
+SRC := $(shell find $(SRCDIR) -type f -name '*.c') #$(wildcard $(SRCDIR)/*.c) 
 # could be replaced by plain "main.c"
 
 # Map each .c to its corresponding .o file in ODIR
 OBJ := $(patsubst $(SRCDIR)/%.c, $(ODIR)/%.o, $(SRC)) 
+# eg './$(src)</lib/test>.c' -> './$(obj)</lib/test>.o' only keep </lib/test>
 # could be replaced by plain "main.o"
 # Instead get, $SRC and create .o files accordingly : $(patsubst pattern, replacement, text) : /src/<main>.c -> /obj/<main>.o
 
@@ -42,7 +43,8 @@ $(TARGET): $(OBJ)
 # $< refers to %.c (name:<arg>)
 # $(DEPS) unique purpose is for make to check if they're present and are not directly passed as argument for compilation
 $(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
-	@mkdir -p $(ODIR)
+# Creates dir of generated object
+	@mkdir -p $(dir $@) 
 	$(CC) -c -o $@ $< $(CFLAGS)
 #@echo "Compiled -> $@"
 

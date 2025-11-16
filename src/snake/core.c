@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,9 +12,9 @@
 // External
 board* snStdBoard = NULL;
 
-// Local
-board* __lastGetSnakeBoard; // Last checked board
-int __NextGetSnakeIndex;    // Last index reached
+/* // Local
+static board* __lastGetSnakeBoard; // Last checked board
+static int __NextGetSnakeIndex;    // Last index reached */
 
 static Allocator allc = {
     .alloc = malloc,
@@ -24,13 +25,10 @@ void __snBDelSnake(board* targetBoard, size_t index); // Removes the snake at in
 /// Public functions
 
 // Board properties
-board* snBInitBoard(int absx, int absy) { // Creates a board in memory
-  board* self = malloc(sizeof(board));    // Allocate memory for board object
-  self->snakes = array(snake*, &allc);    // Inits a dynamic array of ptr for snakes in the board
-  self->tiles = array(tile, &allc);       // Inits a dynamic array for all board tiles
-
-  coords absPos = {absx, absy};
-  self->absPos = absPos;
+board* snBInitBoard() {                // Creates a board in memory
+  board* self = malloc(sizeof(board)); // Allocate memory for board object
+  self->snakes = array(snake*, &allc); // Inits a dynamic array of ptr for snakes in the board
+  self->tiles = array(tile, &allc);    // Inits a dynamic array for all board tiles
 
   return self;
 };
@@ -43,10 +41,9 @@ void snBResizeBoard(board* self, int x, int y) { // Sets the game board borders 
 void snBDeleteBoard(board* self) {
   // TODO Handle snake deletion before free
 
-  snake* ptr;
-  snBGetSnake(self);                // Init target board
-  while ((ptr = snBGetSnake(NULL))) // For each snake in board
-    snSDeleteSnake(ptr);
+  for (size_t i = 0; i < array_length(self->snakes); ++i) {
+    snSDeleteSnake(self->snakes[i]);
+  }
 
   array_delete(self->snakes); // Frees dynamic arrays
   array_delete(self->tiles);
@@ -55,12 +52,6 @@ void snBDeleteBoard(board* self) {
 }
 
 // Board pos system
-coords snBGetAbsPos(board* targetBoard, coords position) { // Get the real position of a coord on screen
-  position.x += targetBoard->absPos.x;
-  position.y += targetBoard->absPos.y;
-  return position;
-}
-
 coords snBRngPos(board* targetBoard) { // Get a random coord on board
   coords rngCoord;
 
@@ -98,41 +89,9 @@ void snBDelTile(board* targetBoard, coords pos) { // Removes tile at coords from
   }
 }
 
-bool snBCheckTile(board* targetBoard, coords pos, tile* returnTile) { // Check for tile at pos, if none return false
-  tile* tilearray = targetBoard->tiles;
-
-  for (int i = 0; i < array_length(tilearray); ++i) {
-    if (!memcmp(&(tilearray[i].coordinate), &pos, sizeof(coords))) { // If matching coords
-      if (returnTile) *returnTile = tilearray[i];
-      return true;
-    }
-  }
-
-  return false;
-};
-
 // Board snake
 void snBAddSnake(board* targetBoard, snake* self) { // Adds a snake to the board
   array_append(&(targetBoard->snakes), &self);
-}
-
-snake* snBGetSnake(board* targetBoard) { // Gets all the snakes on the board
-  snake* snakePtr;
-
-  if (targetBoard) { // If there's a targetBoard specified, set as iterated board
-    __lastGetSnakeBoard = targetBoard;
-    __NextGetSnakeIndex = 0;
-
-  } else if (__lastGetSnakeBoard && // If there's a board specified and that we did not reach the end yet
-             __NextGetSnakeIndex < array_length(__lastGetSnakeBoard->snakes)) {
-    return __lastGetSnakeBoard->snakes[__NextGetSnakeIndex++];
-
-  } else { // Reset
-    __lastGetSnakeBoard = NULL;
-    __NextGetSnakeIndex = 0;
-  }
-
-  return NULL;
 }
 
 void snBDelSnake(board* targetBoard, snake* self) {
@@ -151,8 +110,7 @@ snake* snSInitSnake(coords pos) {      // Inits a snake at a given position
   self->coords = array(coords, &allc);
 
   // Set defaults
-  self->score = 0;
-  self->direction = MV_STILL;          // Not moving
+  //self->direction = MV_STILL;          // Not moving
   array_append(&(self->coords), &pos); // Set first item of coords to initial position
 
   return self;
@@ -189,37 +147,4 @@ void snSMoveHeadPos(snake* self, coords position) { // Updates the snake coordin
 
 int snSGetLength(snake* self) {
   return array_length(self->coords);
-}
-
-bool snSCheckSnake(snake* self, coords position) { // Check for snake presence
-  int size = snSGetLength(self);
-  for (int i = 0; i < size; ++i) {
-    if (!memcmp(self->coords + i, &position, sizeof(coords))) return true; // Compare coords object in memory to check for a match
-  }
-  return false;
-}
-
-coords snSComputeHeadPos(snake* self, enum movType direction) { // Computes the value of the next snake positions of the snake
-  coords headCoord = self->coords[0];
-  direction = direction ? direction : self->direction;
-
-  // Set new coords
-  switch (direction) {
-  case MV_RIGHT:
-    headCoord.x += 1;
-    break;
-  case MV_LEFT:
-    headCoord.x -= 1;
-    break;
-  case MV_DOWN:
-    headCoord.y += 1;
-    break;
-  case MV_UP:
-    headCoord.y -= 1;
-    break;
-  default:
-    break;
-  }
-
-  return headCoord;
 }

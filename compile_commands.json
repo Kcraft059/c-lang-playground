@@ -9,9 +9,9 @@
       "obj/array.o",
       "src/array.c"
     ],
-    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
-    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/array.c",
-    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/array.o"
+    "directory": "/Volumes/Data/camille/Developper/c-lang",
+    "file": "/Volumes/Data/camille/Developper/c-lang/src/array.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang/obj/array.o"
   },
   {
     "arguments": [
@@ -23,9 +23,9 @@
       "obj/main.o",
       "src/main.c"
     ],
-    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
-    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/main.c",
-    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/main.o"
+    "directory": "/Volumes/Data/camille/Developper/c-lang",
+    "file": "/Volumes/Data/camille/Developper/c-lang/src/main.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang/obj/main.o"
   },
   {
     "arguments": [
@@ -34,12 +34,12 @@
       "-I./src/include",
       "-std=c99",
       "-o",
-      "obj/snake.o",
-      "src/snake.c"
+      "obj/snake/graphics.o",
+      "src/snake/graphics.c"
     ],
-    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
-    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/snake.c",
-    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/snake.o"
+    "directory": "/Volumes/Data/camille/Developper/c-lang",
+    "file": "/Volumes/Data/camille/Developper/c-lang/src/snake/graphics.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang/obj/snake/graphics.o"
   },
   {
     "arguments": [
@@ -48,12 +48,12 @@
       "-I./src/include",
       "-std=c99",
       "-o",
-      "obj/snakeGL.o",
-      "src/snakeGL.c"
+      "obj/snake/core.o",
+      "src/snake/core.c"
     ],
-    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
-    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/snakeGL.c",
-    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/snakeGL.o"
+    "directory": "/Volumes/Data/camille/Developper/c-lang",
+    "file": "/Volumes/Data/camille/Developper/c-lang/src/snake/core.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang/obj/snake/core.o"
   },
   {
     "arguments": [
@@ -62,11 +62,11 @@
       "-I./src/include",
       "-std=c99",
       "-o",
-      "obj/snakeENG.o",
-      "src/snakeENG.c"
+      "obj/snake/engine.o",
+      "src/snake/engine.c"
     ],
-    "directory": "/Volumes/Data/camille/Developper/c-lang-playground",
-    "file": "/Volumes/Data/camille/Developper/c-lang-playground/src/snakeENG.c",
-    "output": "/Volumes/Data/camille/Developper/c-lang-playground/obj/snakeENG.o"
+    "directory": "/Volumes/Data/camille/Developper/c-lang",
+    "file": "/Volumes/Data/camille/Developper/c-lang/src/snake/engine.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang/obj/snake/engine.o"
   }
 ]
