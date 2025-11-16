@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <unistd.h>
 /// Personnal Libs
 #include <array.h>
 
@@ -6,12 +7,19 @@
  * Snake core logic definition module
  */
 
+/// Definitions
+
+#define BOARD_RESIZE_UPDT (*(uint64_t*)"BRD_RES\0")
+#define TILE_STATUS_UPDT (*(uint64_t*)"TIL_STS\0")
+#define TILE_REMOVE_UPDT (*(uint64_t*)"TIL_RMV\0")
+
 /// Types
 typedef struct coordinate coords;
 typedef struct gameBoard board;
 typedef struct snakeObj snake;
 typedef struct tileObj tile;
 typedef struct boardUpdate update;
+typedef struct updateHandler updateHandler;
 typedef struct snakeUpdate Supdate;
 typedef struct tileUpdate Tupdate;
 
@@ -20,97 +28,95 @@ struct coordinate { // Coordinate object
   int y;
 };
 
-enum updateType {
-  SNAKE_UPDT,
-  TILE_UPDT
-};
-
-struct boardUpdate {
-  enum updateType type;
-  union { // Prevents void* casting
-    Supdate* snake;
-  } target;
-};
-
 struct gameBoard { // The play area
   // Core properties
   int size_x;
   int size_y;
+  Allocator* allc;
+
   // Board entities
-  tile* tiles;
+  tile** tiles;
   snake** snakes;
+
   // Coordinate mapping
   hashMap* snakeMap;
   hashMap* tileMap;
+
   // Updates
+  update* updates;
+  hashMap* updateHandlers; // Maps updateType as key
 
   // Additionnal data management
-  void* Bdata;
-  void (*SdataFree)(void* Sdata);
-  void (*BdataFree)(void* Bdata);
-  void (*TdataFree)(void* Tdata);
+  void* addData;
+  void (*dataFree)(void* Sdata);
 };
 
 struct snakeObj { // Snake object with all related data
   coords* coords; // List of coords where the snake is present
-  void* Sdata;
+  void* addData;
+  void (*dataFree)(void* Bdata);
 };
 
 struct tileObj {
   coords coordinate;
-  void* Tdata;
+  void* addData;
+  void (*dataFree)(void* Tdata);
 };
 
-struct snakeUpdate { // Update info package
-  enum {             // Update type
-    LEAVE_POS,
-    ENTER_POS,
-    CHANGE_POS
-  } action;
-  union { // Update params
-    coords pos;
-  };
-  snake* target; // Update target
+// Updates Structs
+
+struct boardUpdate {
+  uint64_t type; // Associate a key for handler etc… is defined by a num representing a "string" like : "SNK_ENT\0" \0 being a identifier per module
+  void* payload;
+  void (*free)(void* payload); // Destructor
 };
 
-struct tileUpdate {
-  enum {
-    ADD_POS,
-    REMOVE_POS
-  } action;
-  union { // Update params
-    coords pos;
-  };
-  snake* target; // Update target
+struct updateHandler {
+  void (*apply)(void* self, board* targetBoard);
 };
 
+typedef struct { // Board resize info
+  int size_x;
+  int size_y;
+} bResizeUpdt;
 
-/// Global Vars
+typedef struct { // Tile type change + tile spawning
+  tile* targetTile;
+} tileStatusUpdt;
 
-extern board* snStdBoard; // This is the default snake board
+typedef struct { // Tile removal from board
+  coords pos;
+} tileRemoveUpdt;
 
 /// Functions
-
 // Board properties
-board* snBInitBoard();                          // Should create a new board
-void snBResizeBoard(board* self, int x, int y); // Resizes board limits
-void snBDeleteBoard(board* self);               // Should destroy a board and all related instances
+board* snBInitBoard(int size_x, int size_y, Allocator* a); // Should create a new board
+void snBResizeBoard(board* self, int size_x, int size_y);  // Resizes board limits
+void snBDeleteBoard(board* self);                          // Should destroy a board and all related instances
 
-// Board objects
-void snBAddTile(board* targetBoard, tile self);    // Adds a given tile to board
-void snBDelTile(board* targetBoard, coords pos);   // Removes tile at coords from board
-void snBAddSnake(board* targetBoard, snake* self); // Adds a snake to the board
-void snBDelSnake(board* targetBoard, snake* self); // Removes the snake at index of the board
+// Board Update
+void snBUClear(board* targetBoard);                                                    // Reset all board updates
+void snBUAdd(board* targetBoard, update* self);                                        // Adds a new update to the board
+void snBURemove(board* targetBoard, update* self);                                     // Remove update from list of updates in board
+bool snBURegisterHandler(board* targetBoard, updateHandler handler, char* targetType); // Adds an update type and related infos / handler
+bool snBURemoveHandler(board* targetBoard, char* targetType);                          // Removes the associated handler for type
+updateHandler* snBUGetHandler(board* targetBoard, char* targetType);                   // Get the associated handler for an updatetype
 
 // Board pos system
-coords snBRngPos(board* targetBoard);                        // Get a random coord on board
+coords snBRandomPos(board* targetBoard);                     // Get a random coord on board
 coords snBTranslatePos(board* targetBoard, coords position); // Translates a coordinate out of board
 void* snBCheckSnake(board* targetBoard, coords position);    // Check for snake entity at pos
 void* snBCheckTile(board* targetBoard, coords position);     // Check for snake entity at pos
+
+// Board objects
+bool snBAddTile(board* targetBoard, tile self);    // Adds a given tile to board
+bool snBDelTile(board* targetBoard, coords pos);   // Removes tile at coords from board
+void snBAddSnake(board* targetBoard, snake* self); // Adds a snake to the board
+void snBDelSnake(board* targetBoard, snake* self); // Removes the snake at index of the board
 
 // Snake
 snake* snSInitSnake(coords pos);                   // Inits a snake at a given position
 void snSDeleteSnake(snake* self);                  // Free snake from memory
 void snSSetSize(snake* self, int size);            // Sets snake size
 void snSMoveHeadPos(snake* self, coords position); // Updates the snake coordinates
-int snSGetLength(snake* self);                     // Get the actual size of the snake
+int snSGetSize(snake* self);                       // Get the actual size of the snake

@@ -8,6 +8,7 @@
  * No copyright - Last updated: 11/11/2025
  *-----------------------------------------------------------------------**/
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -58,13 +59,13 @@ void* __array_duplicate(void* source) { // Duplicates an array in memory
   return (void*)((arrayHeader*)self + 1);
 }
 
-int __array_append(void** self, void* value) {     // Adds an element to the end of the array
+bool __array_append(void** self, void* value) {    // Adds an element to the end of the array
   arrayHeader* header = __array_get_header(*self); // Fetch array header
 
   if (header->length >= header->capacity) {
     *self = __array_resize(*self, header->capacity *= ARRAY_INCREMENT_COEF);
 
-    if (!*self) return 0;
+    if (!*self) return true;
     header = __array_get_header(*self);
   };
 
@@ -75,13 +76,13 @@ int __array_append(void** self, void* value) {     // Adds an element to the end
          header->item_size); // Copies the value at specified pointer with item size
   header->length++;
 
-  return 1;
+  return false;
 }
 
-int __array_pop(void** self) {                     // Deref element at last index
+bool __array_pop(void** self) {                    // Deref element at last index
   arrayHeader* header = __array_get_header(*self); // Get header metadata
 
-  if (header->length <= 0) return 0; // Can't pop empty array
+  if (header->length <= 0) return false; // Can't pop empty array
 
   header->length--;
 
@@ -90,19 +91,19 @@ int __array_pop(void** self) {                     // Deref element at last inde
   if (header->length * 2 <= header->capacity && header->length >= 1) // If new length is 2 time smaller than capacity, shrink array unless lenght is <= 1 (to prevent 0 capacity multiplication)
     *self = __array_resize(*self, header->length);
 
-  if (!*self) return 0; // If resize fails
+  if (!*self) return false; // If resize fails
 
-  return 1;
+  return true;
 }
 
-int __array_add(void** self, size_t item_index, void* value) { // Add element at index
+bool __array_add(void** self, size_t item_index, void* value) { // Add element at index
   arrayHeader* header = __array_get_header(*self);
-  if (!header || item_index > header->length) return 0; // If NULL header or negative index, return error
+  if (!header || item_index > header->length) return false; // If NULL header or negative index, return error
 
   if (header->length >= header->capacity) {
     *self = __array_resize(*self, header->capacity *= ARRAY_INCREMENT_COEF);
 
-    if (!*self) return 0;
+    if (!*self) return false;
     header = __array_get_header(*self);
   };
 
@@ -118,12 +119,12 @@ int __array_add(void** self, size_t item_index, void* value) { // Add element at
          header->item_size); // Copies the value at specified pointer with item size
   header->length++;
 
-  return 1;
+  return true;
 }
 
-int __array_remove(void** self, size_t item_index) { // Remove element at index
+bool __array_remove(void** self, size_t item_index) { // Remove element at index
   arrayHeader* header = __array_get_header(*self);
-  if (!header || item_index >= header->length) return 0; // If NULL header or negative index, return error
+  if (!header || item_index >= header->length) return false; // If NULL header or out of range index, return error
 
   memmove( // Moves mem to new index : overwritte
       (char*)(*self) + item_index * header->item_size,
@@ -135,19 +136,19 @@ int __array_remove(void** self, size_t item_index) { // Remove element at index
   if ((header->length) * 2 <= header->capacity && header->length >= 1) // If new length is 2 time smaller than capacity, shrink array unless lenght is <= 1 (to prevent 0 capacity multiplication)
     *self = __array_resize(*self, header->length);
 
-  if (!*self) return 0;
+  if (!*self) return false;
 
-  return 1;
+  return true;
 }
 
-int __array_merge(void** self, void* array_b) { // Create a new array from two dynamic arrays self, array_b, inheriting array_a properties
-  if (!(*self && array_b)) return 0;            // If any array is NULL, error
+bool __array_merge(void** self, void* array_b) { // Create a new array from two dynamic arrays self, array_b, inheriting array_a properties
+  if (!(*self && array_b)) return false;        // If any array is NULL, error
 
   arrayHeader* header = __array_get_header(*self);
   arrayHeader* header_b = __array_get_header(array_b);
 
-  if (!(header && header_b)) return 0;                    // If any array is NULL, error
-  if (header->item_size != header_b->item_size) return 0; // Type mismatch
+  if (!(header && header_b)) return false;                    // If any array is NULL, error
+  if (header->item_size != header_b->item_size) return false; // Type mismatch
 
   size_t size = header->length + header_b->length - 1; // Decrement since, when counting powers of two, 0 is considered as a number eg: 0->31
   int i;
@@ -157,7 +158,7 @@ int __array_merge(void** self, void* array_b) { // Create a new array from two d
 
   *self = __array_resize(*self, size);
 
-  if (!*self) return 0;
+  if (!*self) return false;
   header = __array_get_header(*self);
 
   memcpy( // Appends other array to the end of self
@@ -166,7 +167,7 @@ int __array_merge(void** self, void* array_b) { // Create a new array from two d
       header_b->length * header->item_size);
   header->length += header_b->length;
 
-  return 1;
+  return true;
 }
 
 size_t array_length(void* self) { // Get length of array
@@ -176,10 +177,9 @@ size_t array_length(void* self) { // Get length of array
   return header->length; // Return reported length
 }
 
-int array_delete(void* self) { // Free array from memory
+void array_delete(void* self) { // Free array from memory
   arrayHeader* header = __array_get_header(self);
   header->allocator->free(header); // Free allocated pointer since alloc starts at header
-  return 1;
 }
 
 /// Private functions
@@ -235,9 +235,9 @@ hashMap* hashmap_init(size_t initCapacity, hash (*preHashFunc)(void*), Allocator
 
   if (self) {
     self->capacity = initCapacity;                                   // Set capacity
-    self->prehashFunc = preHashFunc;                                 // Sets the hasher function
+    self->preHashFunc = preHashFunc;                                 // Sets the hasher function
     self->bucketList = a->alloc(sizeof(bucketItem*) * initCapacity); // Allocate memory for all buckets
-    for (size_t i = 0; i < initCapacity; ++i) {                         // Set all pointers to NULL
+    for (size_t i = 0; i < initCapacity; ++i) {                      // Set all pointers to NULL
       self->bucketList[i] = NULL;
     }
     self->itemc = 0;
@@ -319,6 +319,12 @@ void hashmap_resize(hashMap* self, size_t capacity) { // Resize & reassign hashm
   self->allc->free(oldMap); // Free old map
 }
 
+/* 
+// TODO: Implement
+bool hashmap_actOnEach(hashMap* self, hashmapIterFunc func, void* extData) {
+} 
+*/
+
 /// Private function definition
 // bucket handling
 void __hashmap_bucketAdd(hashMap* targetMap, bucketItem** self, void* data, hash prehash) {
@@ -383,7 +389,7 @@ size_t __hashmap_getIndex(hashMap* self, hash prehash) { // Get an index based o
 }
 
 hash __hashmap_getpreHash(hashMap* self, void* key) { // Get hash from key
-  hash prehash = self->prehashFunc(key);
+  hash prehash = self->preHashFunc(key);
   return prehash;
 }
 

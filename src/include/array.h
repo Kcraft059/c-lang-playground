@@ -68,13 +68,13 @@ struct arrayHeader {
 
 void* __array_init(size_t item_size, size_t capacity, Allocator* a); // Initializes a dynamic array in memory
 void* __array_duplicate(void* source);                               // Duplicates an array in memory
-int __array_append(void** self, void* value);                        // Adds an element to the end of the array
-int __array_pop(void** self);                                        // Removes element at last index
-int __array_add(void** self, size_t item_index, void* value);        // Add element at index
-int __array_remove(void** self, size_t item_index);                  // Remove element at index
-int __array_merge(void** array_a, void* array_b);                    // Create a new array from two dynamic arrays array_a, array_b
+bool __array_append(void** self, void* value);                       // Adds an element to the end of the array
+bool __array_pop(void** self);                                        // Removes element at last index
+bool __array_add(void** self, size_t item_index, void* value);        // Add element at index
+bool __array_remove(void** self, size_t item_index);                  // Remove element at index
+bool __array_merge(void** array_a, void* array_b);                    // Create a new array from two dynamic arrays array_a, array_b
 size_t array_length(void* self);                                     // Get length of array
-int array_delete(void* self);                                        // Free array from memory
+void array_delete(void* self);                                        // Free array from memory
 
 /**
  * Hash Map lib
@@ -97,17 +97,20 @@ typedef struct hashMap hashMap;
 typedef struct bucketItem bucketItem;
 typedef uint64_t hash;
 
+typedef hash (*prehashFunc)(void* key);
+typedef bool (*hashmapIterFunc)(void* ptr, void* extData);
+
 struct bucketItem {         // Bucket item, which points to the data
   u_int64_t cached_prehash; // Usefull when resizing hashmap
   void* ptr;
   bucketItem* nextItem; // Chain items in bucket
 };
 
-struct hashMap {                  // Hash map for quick access given value
-  size_t capacity;                // Bucket capacity
-  size_t itemc;                   // Stored items count
-  bool dynamicResize;             // Should the hashmap be dynamically resized
-  hash (*prehashFunc)(void* key); // Generate a preHash for any given void* to be hashed
+struct hashMap {           // Hash map for quick access given value
+  size_t capacity;         // Bucket capacity
+  size_t itemc;            // Stored items count
+  bool dynamicResize;      // Should the hashmap be dynamically resized
+  prehashFunc preHashFunc; // Generate a preHash for any given void* to be hashed
   Allocator* allc;
   bucketItem** bucketList; // Pointer to the memory adress of bucketlist
 };
@@ -119,5 +122,7 @@ void hashmap_add(hashMap* self, void* data, void* key);                         
 bool hashmap_remove(hashMap* self, void* key);                                        // Delete an item at given key in map
 void* hashmap_get(hashMap* self, void* key);                                          // Get ptr to data for given key in hashmap
 void hashmap_resize(hashMap* self, size_t capacity);                                  // Resize map to given capacity
+// To be implemented
+bool hashmap_actOnEach(hashMap* self, hashmapIterFunc func, void* extData); // Execute function on each element of the hashmap
 
 #endif
