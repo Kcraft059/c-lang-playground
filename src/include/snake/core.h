@@ -2,17 +2,20 @@
  * Snake core logic definition module by @kcraft059
  *
  * This module defines the behaviour of the core logic for the snake game,
- * it implements all board management related functions, entity control, 
+ * it implements all board management related functions, entity control,
  * update logic etc on which an engine can relly to implement game behaviour
  *
- * No copyright - Last updated: 16/11/2025 
+ * No copyright - Last updated: 16/11/2025
  *-----------------------------------------------------------------------**/
- 
+
 #ifndef SNAKE_CORE_H
 #define SNAKE_CORE_H
 
+#include <_strings.h>
 #include <array.h> // Personnal array lib
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 /// Definitions
 // Update types
@@ -25,8 +28,8 @@ typedef struct coordinate coords;
 typedef struct gameBoard board;
 typedef struct snakeObj snake;
 typedef struct tileObj tile;
-typedef struct boardUpdate update;
 typedef struct updateHandler updateHandler;
+typedef struct boardUpdate update;
 typedef struct snakeUpdate Supdate;
 typedef struct tileUpdate Tupdate;
 
@@ -101,12 +104,12 @@ void snBResizeBoard(board* self, int size_x, int size_y);  // Resizes board limi
 void snBDeleteBoard(board* self);                          // Should destroy a board and all related instances
 
 // Board Update
-void snBUClear(board* targetBoard);                                                    // Reset all board updates
-void snBUAdd(board* targetBoard, update* self);                                        // Adds a new update to the board
-void snBURemove(board* targetBoard, update* self);                                     // Remove update from list of updates in board
-bool snBURegisterHandler(board* targetBoard, updateHandler handler, char* targetType); // Adds an update type and related infos / handler
-bool snBURemoveHandler(board* targetBoard, char* targetType);                          // Removes the associated handler for type
-updateHandler* snBUGetHandler(board* targetBoard, char* targetType);                   // Get the associated handler for an updatetype
+void snBUClear(board* targetBoard);                                                       // Reset all board updates
+void snBUAdd(board* targetBoard, update* self);                                           // Adds a new update to the board
+bool snBURemove(board* targetBoard, size_t index);                                        // Remove update from list of updates in board
+bool snBURegisterHandler(board* targetBoard, updateHandler handler, uint64_t targetType); // Adds an update type and related infos / handler
+bool snBURemoveHandler(board* targetBoard, uint64_t targetType);                          // Removes the associated handler for type
+updateHandler* snBUGetHandler(board* targetBoard, uint64_t targetType);                   // Get the associated handler for an updatetype
 
 // Board pos system
 coords snBRandomPos(board* targetBoard);                     // Get a random coord on board

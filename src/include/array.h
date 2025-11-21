@@ -10,15 +10,10 @@
 
 #ifndef ARRAY_UTILS_H
 #define ARRAY_UTILS_H
-// Prevents from being included multiple times
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <unistd.h>
-
-/**
- * Dynamic array lib
- */
 
 /// Default values
 
@@ -32,6 +27,8 @@
   ((type*)__array_init(sizeof(type), ARRAY_INITIAL_CAPACITY, alloc))
 #define array_dup(type, source) \
   ((type*)__array_duplicate(source))
+#define array_resize(array_ptr, size) \
+  (__array_resize((void**)array_ptr, size))
 #define array_append(array_ptr, value) \
   (__array_append((void**)array_ptr, value))
 #define array_pop(array_ptr) \
@@ -68,13 +65,14 @@ struct arrayHeader {
 
 void* __array_init(size_t item_size, size_t capacity, Allocator* a); // Initializes a dynamic array in memory
 void* __array_duplicate(void* source);                               // Duplicates an array in memory
+bool __array_resize(void** self, size_t size);                       // Change array capcity to number of items
 bool __array_append(void** self, void* value);                       // Adds an element to the end of the array
-bool __array_pop(void** self);                                        // Removes element at last index
-bool __array_add(void** self, size_t item_index, void* value);        // Add element at index
-bool __array_remove(void** self, size_t item_index);                  // Remove element at index
-bool __array_merge(void** array_a, void* array_b);                    // Create a new array from two dynamic arrays array_a, array_b
+bool __array_pop(void** self);                                       // Removes element at last index
+bool __array_add(void** self, size_t item_index, void* value);       // Add element at index
+bool __array_remove(void** self, size_t item_index);                 // Remove element at index
+bool __array_merge(void** array_a, void* array_b);                   // Create a new array from two dynamic arrays array_a, array_b
 size_t array_length(void* self);                                     // Get length of array
-void array_delete(void* self);                                        // Free array from memory
+void array_delete(void* self);                                       // Free array from memory
 
 /**
  * Hash Map lib
@@ -98,10 +96,10 @@ typedef struct bucketItem bucketItem;
 typedef uint64_t hash;
 
 typedef hash (*prehashFunc)(void* key);
-typedef bool (*hashmapIterFunc)(void* ptr, void* extData);
+typedef bool (*hashmapIterFunc)(bucketItem* self, void* extData); // Checks a condition on ptr, returns true to continue, false to stop iteration
 
-struct bucketItem {         // Bucket item, which points to the data
-  u_int64_t cached_prehash; // Usefull when resizing hashmap
+struct bucketItem {        // Bucket item, which points to the data
+  uint64_t cached_prehash; // Usefull when resizing hashmap
   void* ptr;
   bucketItem* nextItem; // Chain items in bucket
 };
@@ -122,7 +120,6 @@ void hashmap_add(hashMap* self, void* data, void* key);                         
 bool hashmap_remove(hashMap* self, void* key);                                        // Delete an item at given key in map
 void* hashmap_get(hashMap* self, void* key);                                          // Get ptr to data for given key in hashmap
 void hashmap_resize(hashMap* self, size_t capacity);                                  // Resize map to given capacity
-// To be implemented
-bool hashmap_actOnEach(hashMap* self, hashmapIterFunc func, void* extData); // Execute function on each element of the hashmap
+bool hashmap_actOnEach(hashMap* self, hashmapIterFunc func, void* extData);           // Execute function on each element of the hashmap, returns false on failure
 
 #endif

@@ -1,15 +1,19 @@
-#include <snake.h> // Reference
+#include "snake/core.h"
+#include <snake/snake.h> // Reference
 // ----------------------------
 #include <array.h> // Personnal lib
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 // Private functions def
 
-hash __hashCoordMap(void* coords);                         // Maps coordinate to a prehash as a hash key
-hash __hashUpdtTyp(void* updtType);                        // Maps updtType to hash
-bool __hashItemFreeUpdtHandler(void* self, void* extData); // Frees given handler object
-void __freeTile(board* targetBoard, tile*);                // Free tile of board
+hash __hashCoordMap(void* coos);                                 // Maps coordinate to a prehash as a hash key
+hash __hashUpdtType(void* updtType);                             // Maps updtType to hash
+bool __hashItemFreeUpdtHandler(bucketItem* self, void* extData); // Frees given handler object
+void __freeTile(board* targetBoard, tile* self);                 // Free tile of board
+tile* __allocTile(board* targetBoard);                           // Free tile of board
 
 // Board properties
 board* snBInitBoard(int size_x, int size_y, Allocator* a) { // Should create a new board
@@ -24,7 +28,7 @@ board* snBInitBoard(int size_x, int size_y, Allocator* a) { // Should create a n
     self->updates = array(update, a);
     self->snakeMap = hashmap(__hashCoordMap, a);
     self->tileMap = hashmap(__hashCoordMap, a);
-    self->updateHandlers = hashmap(__hashUpdtTyp, a);
+    self->updateHandlers = hashmap(__hashUpdtType, a);
     self->addData = self->dataFree = NULL; // Board init doesn't handle this
   }
 
@@ -43,9 +47,9 @@ void snBDeleteBoard(board* self) { // Should destroy a board and all related ins
   array_delete(self->tiles);
   hashmap_delete(self->tileMap);
 
-  for (int i = 0; i < array_length(self->snakes); ++i) { // Free each snake in board
+  /* for (int i = 0; i < array_length(self->snakes); ++i) { // Free each snake in board
     snSDeleteSnake(self->snakes[i]);
-  }
+  } */
   array_delete(self->snakes);
   hashmap_delete(self->snakeMap);
 
@@ -72,12 +76,44 @@ void snBResizeBoard(board* self, int size_x, int size_y) { // Resizes board limi
 }
 
 // Board Update
-void snBUClear(board* targetBoard);                                                    // Reset all board updates
-void snBUAdd(board* targetBoard, update* self);                                        // Adds a new update to the board
-void snBURemove(board* targetBoard, update* self);                                     // Remove update from list of updates in board
-bool snBURegisterHandler(board* targetBoard, updateHandler handler, char* targetType); // Adds an update type and related infos / handler
-bool snBURemoveHandler(board* targetBoard, char* targetType);                          // Removes the associated handler for type
-updateHandler* snBUGetHandler(board* targetBoard, char* targetType);                   // Get the associated handler for an updatetype
+void snBUClear(board* targetBoard) {                             // Reset all board updates
+  for (int i = 0; i < array_length(targetBoard->updates); ++i) { // Free each udpate payload
+    update crtUpdt = targetBoard->updates[i];
+    if (crtUpdt.free) crtUpdt.free(crtUpdt.payload);
+  }
+
+  array_resize(&targetBoard->updates, 0); // Set size of updates to 0 = clear updates
+}
+
+void snBUAdd(board* targetBoard, update* self) { // Adds a new update to the board
+  array_append(&targetBoard->updates, self);     // Can directly pass self since it's copied and does not go out of scope
+}
+
+bool snBURemove(board* targetBoard, size_t index) {  // Remove update from list of updates in board
+  return array_remove(&targetBoard->updates, index); // Return deletion success
+}
+
+bool snBURegisterHandler(board* targetBoard, updateHandler handler, uint64_t targetType) { // Adds an update type and related infos / handler
+  updateHandler* self = targetBoard->allc->alloc(sizeof(updateHandler));                   // Alloc mem for handler
+  *self = handler;
+
+  if (!self) return false;
+
+  hashmap_add(targetBoard->updateHandlers, self, &targetType); // Todo handle replacement warning
+  return true;
+}
+
+bool snBURemoveHandler(board* targetBoard, uint64_t targetType) { // Removes the associated handler for type
+  updateHandler* handler;
+  if ((handler = snBUGetHandler(targetBoard, targetType)))
+    targetBoard->allc->free(handler);
+
+  return hashmap_remove(targetBoard->updateHandlers, &targetType);
+}
+
+updateHandler* snBUGetHandler(board* targetBoard, uint64_t targetType) { // Get the associated handler for an updatetype
+  return hashmap_get(targetBoard->updateHandlers, &targetType);
+}
 
 // Board pos system
 coords snBRandomPos(board* targetBoard);                     // Get a random coord on board
@@ -89,7 +125,7 @@ void* snBCheckTile(board* targetBoard, coords position);     // Check for snake 
 bool snBAddTile(board* targetBoard, tile self) {                         // Adds a given tile to board
   if (hashmap_get(targetBoard->tileMap, &self.coordinate)) return false; // Can't add to an already allocated pos
 
-  tile* newTile = targetBoard->allc->alloc(sizeof(tile));
+  tile* newTile = __allocTile(targetBoard);
   *newTile = self;
 
   array_append(targetBoard->tiles, &newTile);                       // Adds the tile to the baord tiles
@@ -140,3 +176,25 @@ void snSMoveHeadPos(snake* self, coords position); // Updates the snake coordina
 int snSGetSize(snake* self);                       // Get the actual size of the snake
 
 /// Private helpers
+
+hash __hashCoordMap(void* coos) { // Maps coordinate to a prehash as a hash key
+  coords* coo = coos;
+  return (uint64_t)coo->x << 32 | (uint32_t)coo->y;
+}
+
+hash __hashUpdtType(void* updtType) { // Maps updtType to hash
+  return *(hash*)updtType;
+}
+
+bool __hashItemFreeUpdtHandler(bucketItem* self, void* extData) { // Frees given handler object
+  ((Allocator*)extData)->free(self->ptr);
+  return true;
+}
+
+void __freeTile(board* targetBoard, tile* self) { // Free tile of board
+  targetBoard->allc->free(self);
+}
+
+tile* __allocTile(board* targetBoard) { // Free tile of board
+  return targetBoard->allc->alloc(sizeof(tile));
+}
