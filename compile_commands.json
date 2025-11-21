@@ -26,47 +26,5 @@
     "directory": "/Volumes/Data/camille/Developper/c-lang",
     "file": "/Volumes/Data/camille/Developper/c-lang/src/main.c",
     "output": "/Volumes/Data/camille/Developper/c-lang/obj/main.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-c",
-      "-I./src/include",
-      "-std=c99",
-      "-o",
-      "obj/snake/graphics.o",
-      "src/snake/graphics.c"
-    ],
-    "directory": "/Volumes/Data/camille/Developper/c-lang",
-    "file": "/Volumes/Data/camille/Developper/c-lang/src/snake/graphics.c",
-    "output": "/Volumes/Data/camille/Developper/c-lang/obj/snake/graphics.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-c",
-      "-I./src/include",
-      "-std=c99",
-      "-o",
-      "obj/snake/core.o",
-      "src/snake/core.c"
-    ],
-    "directory": "/Volumes/Data/camille/Developper/c-lang",
-    "file": "/Volumes/Data/camille/Developper/c-lang/src/snake/core.c",
-    "output": "/Volumes/Data/camille/Developper/c-lang/obj/snake/core.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-c",
-      "-I./src/include",
-      "-std=c99",
-      "-o",
-      "obj/snake/engine.o",
-      "src/snake/engine.c"
-    ],
-    "directory": "/Volumes/Data/camille/Developper/c-lang",
-    "file": "/Volumes/Data/camille/Developper/c-lang/src/snake/engine.c",
-    "output": "/Volumes/Data/camille/Developper/c-lang/obj/snake/engine.o"
   }
 ]
