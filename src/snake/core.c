@@ -1,10 +1,10 @@
-#include "snake/core.h"
 #include <snake/snake.h> // Reference
 // ----------------------------
 #include <array.h> // Personnal lib
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 // Private functions def
@@ -41,9 +41,9 @@ void snBDeleteBoard(board* self) { // Should destroy a board and all related ins
   Allocator* a = self->allc;
 
   // Object deletion isn't needed here, because tiles are in the array, they're not referenced in the array
-  for (int i = 0; i < array_length(self->tiles); ++i) { // Free each tile in board
-    __freeTile(self, self->tiles[i]);                   // Free tile from memory
-  }
+  for (int i = 0; i < array_length(self->tiles); ++i) // Free each tile in board
+    __freeTile(self, self->tiles[i]);                 // Free tile from memory
+
   array_delete(self->tiles);
   hashmap_delete(self->tileMap);
 
@@ -89,8 +89,14 @@ void snBUAdd(board* targetBoard, update* self) { // Adds a new update to the boa
   array_append(&targetBoard->updates, self);     // Can directly pass self since it's copied and does not go out of scope
 }
 
-bool snBURemove(board* targetBoard, size_t index) {  // Remove update from list of updates in board
-  return array_remove(&targetBoard->updates, index); // Return deletion success
+bool snBURemove(board* targetBoard, size_t index) { // Remove update from list of updates in board
+  if (index <= array_length(targetBoard->updates)) {
+    update crtUpdt = targetBoard->updates[index];
+    array_remove(&targetBoard->updates, index);
+    if (crtUpdt.free) crtUpdt.free(crtUpdt.payload);
+    return true;
+  }
+  return false;
 }
 
 bool snBURegisterHandler(board* targetBoard, updateHandler handler, uint64_t targetType) { // Adds an update type and related infos / handler
@@ -99,7 +105,8 @@ bool snBURegisterHandler(board* targetBoard, updateHandler handler, uint64_t tar
 
   if (!self) return false;
 
-  hashmap_add(targetBoard->updateHandlers, self, &targetType); // Todo handle replacement warning
+  hashmap_add(targetBoard->updateHandlers, self, &targetType); // Passinf '&' ref is fine, since key is copied
+  // Todo handle replacement warning
   return true;
 }
 
@@ -128,7 +135,7 @@ bool snBAddTile(board* targetBoard, tile self) {                         // Adds
   tile* newTile = __allocTile(targetBoard);
   *newTile = self;
 
-  array_append(targetBoard->tiles, &newTile);                       // Adds the tile to the baord tiles
+  array_append(&targetBoard->tiles, &newTile);                      // Adds the tile to the baord tiles
   hashmap_add(targetBoard->tileMap, newTile, &newTile->coordinate); //  Register tile at pos
 
   tileStatusUpdt* updt = targetBoard->allc->alloc(sizeof(tileStatusUpdt)); // Prepare update payload
@@ -143,6 +150,8 @@ bool snBAddTile(board* targetBoard, tile self) {                         // Adds
 
 bool snBDelTile(board* targetBoard, coords pos) {             // Removes tile at coords from board
   if (!hashmap_get(targetBoard->tileMap, &pos)) return false; // Can't delete if nothing at pos
+
+  hashmap_remove(targetBoard->tileMap, &pos);
 
   for (int i = 0; i < array_length(targetBoard->tiles); ++i) {
     if (memcmp(&(targetBoard->tiles[i]->coordinate), // If positions match

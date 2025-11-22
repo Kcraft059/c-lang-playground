@@ -55,6 +55,6 @@ asan: CFLAGS += -fsanitize=address
 asan: $(TARGET)
 
 clean:
-	rm -f $(ODIR)/*.o
+	rm -rf $(ODIR)/*
 	rm -f $(TARGET)
 #@echo "Cleaned build artifacts"

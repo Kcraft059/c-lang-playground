@@ -52,10 +52,9 @@ void* __array_duplicate(void* source) { // Duplicates an array in memory
 
 bool __array_resize(void** self, size_t size) {    // Change array-length (sizing up will result in UB)
   arrayHeader* header = __array_get_header(*self); // Fetch array header
-  if (size < 0) return false;                     // Can't resize to 0 items
+  if (size < 0) return false;                      // Can't resize to 0 items
 
   header->length = size;
-
 
   *self = __array_set_capacity(*self,
                                __nearest_pow2(size - 1)); // Resize capacity to nearest pow of 2
@@ -68,13 +67,13 @@ bool __array_append(void** self, void* value) {    // Adds an element to the end
   arrayHeader* header = __array_get_header(*self); // Fetch array header
 
   if (header->length >= header->capacity) {
-    *self = __array_set_capacity(*self, header->capacity *= ARRAY_INCREMENT_COEF);
+    *self = __array_set_capacity(*self, header->capacity * ARRAY_INCREMENT_COEF);
 
     if (!*self) return false;
     header = __array_get_header(*self);
   };
 
-  // printf("Copy of array offset %ld (%ld items) on %ld bytes plage\n", header->length * header->item_size, header->length, header->item_size);  // Debug
+  //printf("Copy of array offset %ld (%ld items) on %ld bytes plage on %p\n", header->length * header->item_size, header->length, header->item_size, *self); // Debug
 
   memcpy((char*)(*self) + header->length * header->item_size,
          value,
@@ -106,7 +105,7 @@ bool __array_add(void** self, size_t item_index, void* value) { // Add element a
   if (!header || item_index > header->length) return false; // If NULL header or negative index, return error
 
   if (header->length >= header->capacity) {
-    *self = __array_set_capacity(*self, header->capacity *= ARRAY_INCREMENT_COEF);
+    *self = __array_set_capacity(*self, header->capacity * ARRAY_INCREMENT_COEF);
 
     if (!*self) return false;
     header = __array_get_header(*self);
@@ -194,10 +193,12 @@ void* __array_get_header(void* self) {          // Retrieves header pointer
 }
 
 void* __array_set_capacity(void* self, size_t new_size) { // Resize size in memory∑
-  // printf("Resize of %p to %ld items\n", self, new_size);  // Debug
+  //printf("Resize of %p to %ld items\n", self, new_size);  // Debug
 
   if (!self) return NULL;                         // Prevents use of NULL as input
   arrayHeader* header = __array_get_header(self); // Gets header info
+
+  if (header->capacity == new_size) return self;
 
   if (!header) return NULL;
   header = header->allocator->realloc(
@@ -284,17 +285,17 @@ void hashmap_add(hashMap* self, void* data, void* key) {    // Adds data for giv
 }
 
 bool hashmap_remove(hashMap* self, void* key) {
+  hash prehash = __hashmap_getpreHash(self, key); // Free before resize means 1 less bucket to reassign
+  size_t index = __hashmap_getIndex(self, prehash);
+  bucketItem** bucket = self->bucketList + index;               // Starting pos for bucket chain
+  bool success = __hashmap_bucketRemove(self, bucket, prehash); // Remove bucket starting at bucket*
+
   if (self->dynamicResize &&                                  // If hashmap is dynamic
       self->itemc * HASHMAP_RESIZE_FACTOR < self->capacity && // If itemc is too low for capacity, resize down
       self->capacity / HASHMAP_RESIZE_COEF > HASHMAP_RESIZE_COEF)
     hashmap_resize(self, self->capacity / HASHMAP_RESIZE_COEF);
 
-  hash prehash = __hashmap_getpreHash(self, key); // Should be after resize, because index depends on capacity
-  size_t index = __hashmap_getIndex(self, prehash);
-
-  bucketItem** bucket = self->bucketList + index; // Starting pos for bucket chain
-
-  return __hashmap_bucketRemove(self, bucket, prehash); // Remove bucket starting at bucket*
+  return success;
 }
 
 void* hashmap_get(hashMap* self, void* key) {
@@ -310,6 +311,7 @@ void hashmap_resize(hashMap* self, size_t capacity) { // Resize & reassign hashm
   bucketItem** oldMap = self->bucketList;
   size_t oldMapCapacity = self->capacity;
 
+  // printf("Running resize from %ld to %ld \n", oldMapCapacity, capacity); // Debug
   self->bucketList = self->allc->alloc(sizeof(bucketItem*) * capacity); // Make a new bucket list
   for (int i = 0; i < capacity; ++i) {                                  // Set all pointers to NULL
     self->bucketList[i] = NULL;
@@ -318,6 +320,7 @@ void hashmap_resize(hashMap* self, size_t capacity) { // Resize & reassign hashm
   self->capacity = capacity; // Set new capacity
   self->itemc = 0;           // Set to 0, since reassign uses bucket add which increments itemc
 
+  // printf("Reassigning buckets \n"); // Debug
   for (size_t i = 0; i < oldMapCapacity; i++) { // For each bucket, reassign to new map
     bucketItem* bucketChainStart = oldMap[i];
     if (bucketChainStart)
