@@ -139,6 +139,12 @@ updateHandler* snBUGetHandler(board* targetBoard, uint64_t targetType) { // Get 
 
 // Board pos system
 
+/**
+ *
+ * Warning this still needs much improvement (is not made to handle huge quantity of tiles)
+ *
+ */
+
 /// ------ Random POS implementation ------
 struct addDataStoreInt {
   hashMap* excludedPos; // Ensures data uniqueness

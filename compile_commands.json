@@ -20,6 +20,20 @@
       "-I./src/include",
       "-std=c99",
       "-o",
+      "obj/debug.o",
+      "src/debug.c"
+    ],
+    "directory": "/Volumes/Data/camille/Developper/c-lang",
+    "file": "/Volumes/Data/camille/Developper/c-lang/src/debug.c",
+    "output": "/Volumes/Data/camille/Developper/c-lang/obj/debug.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I./src/include",
+      "-std=c99",
+      "-o",
       "obj/main.o",
       "src/main.c"
     ],
