@@ -1,3 +1,4 @@
+#include "snake/core.h"
 #include <array.h>
 #include <snake/snake.h>
 #include <stddef.h>
@@ -5,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 int allocs = 0; // Debug
 int entropy = 0;
@@ -31,55 +33,27 @@ void ffree(void* ptr) {
 }
 
 static Allocator* all = &(Allocator){
-    fmalloc, frealloc, ffree};
-// malloc, realloc, free};
-
-void testHandler(void* self, board* targetBoard) {
-  printf("Int : %d\n", *(int*)self);
-}
-
-void resizeHandler(void* self, board* targetBoard) {
-  bResizeUpdt* updt = (bResizeUpdt*)self;
-  printf("Resized to %d,%d\n", updt->size_x, updt->size_y);
-}
+    // fmalloc, frealloc, ffree};
+    malloc, realloc, free};
 
 int main(int argc, char** argv) {
-  board* mainBoard = snBInitBoard(12, 12, all);
-  printf("Board init end\n");
+  board* mainBoard = snBInitBoard(150, 85, all);
 
-  for (int i = 0; i < 2; ++i) {
-    int* ptr = all->alloc(sizeof(int));
-    *ptr = i;
-    snBUAdd(mainBoard, &(update){
-                           *(uint64_t*)"TST_UP\1",
-                           ptr,
-                           all->free});
+  for (uint64_t i = 0; i < 1; ++i) {
+    snBAddTile(mainBoard, (tile){(coords){
+                              i / (mainBoard->size_y + 1),
+                              i % (mainBoard->size_y + 1)}});
   }
 
-  snBAddTile(mainBoard, (tile){(coords){2, 3}, NULL});
-  snBAddTile(mainBoard, (tile){(coords){3, 3}, NULL});
-  snBAddTile(mainBoard, (tile){(coords){5, 3}, NULL});
+  hashMap** exclusions = array(hashMap*, mainBoard->allc);
+  array_append(&exclusions, &mainBoard->tileMap);
 
-  snBDelTile(mainBoard, (coords){2, 3});
+  coords co;
+  if (snBRandomPos(mainBoard, exclusions, &co))
+    printf("%d;%d\n", co.x, co.y);
 
-  snBResizeBoard(mainBoard, 45, 32);
+  array_delete(exclusions);
 
-  snBURegisterHandler(mainBoard,
-                      (updateHandler){resizeHandler},
-                      *(uint64_t*)"BRD_RES\0");
-
-  snBURegisterHandler(mainBoard,
-                      (updateHandler){testHandler},
-                      *(uint64_t*)"TST_UP\1");
-
-  updateHandler* handler;
-  for (int i = 0; i < array_length(mainBoard->updates); ++i)
-    if ((handler = snBUGetHandler(mainBoard,
-                                  mainBoard->updates[i].type)) &&
-        handler->apply)
-      handler->apply(mainBoard->updates[i].payload, mainBoard);
-
-  printf("Start board clear\n");
   snBDeleteBoard(mainBoard);
   printf("Remaining Allocs: %d Entropy: %d\n", allocs, entropy);
 }

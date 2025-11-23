@@ -42,6 +42,7 @@ struct gameBoard { // The play area
   // Core properties
   int size_x;
   int size_y;
+  int rngSeed;
   Allocator* allc;
 
   // Board entities
@@ -112,10 +113,10 @@ bool snBURemoveHandler(board* targetBoard, uint64_t targetType);                
 updateHandler* snBUGetHandler(board* targetBoard, uint64_t targetType);                   // Get the associated handler for an updatetype
 
 // Board pos system
-coords snBRandomPos(board* targetBoard);                     // Get a random coord on board
-coords snBTranslatePos(board* targetBoard, coords position); // Translates a coordinate out of board
-void* snBCheckSnake(board* targetBoard, coords position);    // Check for snake entity at pos
-void* snBCheckTile(board* targetBoard, coords position);     // Check for snake entity at pos
+bool snBRandomPos(board* targetBoard, hashMap** exclusions, coords* storePos); // Get a random coord on board not present in exclusion maps
+coords snBTranslatePos(board* targetBoard, coords pos);                        // Translates a coordinate out of board
+void* snBCheckSnake(board* targetBoard, coords pos);                           // Check for snake entity at pos
+void* snBCheckTile(board* targetBoard, coords pos);                            // Check for snake entity at pos
 
 // Board objects
 bool snBAddTile(board* targetBoard, tile self);    // Adds a given tile to board
