@@ -1,4 +1,4 @@
-#include "debug.h"
+#include <debug.h>
 #include <array.h>
 #include <snake/snake.h>
 #include <stddef.h>

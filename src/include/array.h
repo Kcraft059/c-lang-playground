@@ -66,7 +66,7 @@ struct arrayHeader {
 void* __array_init(size_t item_size, size_t capacity, Allocator* a); // Initializes a dynamic array in memory
 void* __array_duplicate(void* source);                               // Duplicates an array in memory
 bool __array_resize(void** self, size_t size);                       // Change array capcity to number of items
-bool __array_append(void** self, void* value);                       // Adds an element to the end of the array
+size_t __array_append(void** self, void* value);                       // Adds an element to the end of the array
 bool __array_pop(void** self);                                       // Removes element at last index
 bool __array_add(void** self, size_t item_index, void* value);       // Add element at index
 bool __array_remove(void** self, size_t item_index);                 // Remove element at index

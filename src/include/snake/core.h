@@ -11,7 +11,6 @@
 #ifndef SNAKE_CORE_H
 #define SNAKE_CORE_H
 
-#include <_strings.h>
 #include <array.h> // Personnal array lib
 #include <stdbool.h>
 #include <stddef.h>
@@ -64,6 +63,7 @@ struct gameBoard { // The play area
 
 struct snakeObj { // Snake object with all related data
   coords* coords; // List of coords where the snake is present
+  Allocator* allc;
   void* addData;
   void (*dataFree)(void* Bdata);
 };
@@ -125,7 +125,7 @@ void snBAddSnake(board* targetBoard, snake* self); // Adds a snake to the board
 void snBDelSnake(board* targetBoard, snake* self); // Removes the snake at index of the board
 
 // Snake
-snake* snSInitSnake(coords pos);                   // Inits a snake at a given position
+snake* snSInitSnake(coords pos, Allocator* allc);  // Inits a snake at a given position
 void snSDeleteSnake(snake* self);                  // Free snake from memory
 void snSSetSize(snake* self, int size);            // Sets snake size
 void snSMoveHeadPos(snake* self, coords position); // Updates the snake coordinates

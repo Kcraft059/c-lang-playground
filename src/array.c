@@ -63,13 +63,13 @@ bool __array_resize(void** self, size_t size) {    // Change array-length (sizin
   return true;
 }
 
-bool __array_append(void** self, void* value) {    // Adds an element to the end of the array
+size_t __array_append(void** self, void* value) {    // Adds an element to the end of the array
   arrayHeader* header = __array_get_header(*self); // Fetch array header
 
   if (header->length >= header->capacity) {
     *self = __array_set_capacity(*self, header->capacity * ARRAY_INCREMENT_COEF);
 
-    if (!*self) return false;
+    if (!*self) return -1;
     header = __array_get_header(*self);
   };
 
@@ -80,7 +80,7 @@ bool __array_append(void** self, void* value) {    // Adds an element to the end
          header->item_size); // Copies the value at specified pointer with item size
   header->length++;
 
-  return true;
+  return header->length - 1;
 }
 
 bool __array_pop(void** self) {                    // Deref element at last index

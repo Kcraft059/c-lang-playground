@@ -140,9 +140,7 @@ updateHandler* snBUGetHandler(board* targetBoard, uint64_t targetType) { // Get 
 // Board pos system
 
 /**
- *
  * Warning this still needs much improvement (is not made to handle huge quantity of tiles)
- *
  */
 
 /// ------ Random POS implementation ------
@@ -315,11 +313,11 @@ void snBAddSnake(board* targetBoard, snake* self); // Adds a snake to the board
 void snBDelSnake(board* targetBoard, snake* self); // Removes the snake at index of the board
 
 // Snake
-snake* snSInitSnake(coords pos);              // Inits a snake at a given position
-void snSDeleteSnake(snake* self);             // Free snake from memory
-void snSSetSize(snake* self, int size);       // Sets snake size
-void snSMoveHeadPos(snake* self, coords pos); // Updates the snake coordinates
-int snSGetSize(snake* self);                  // Get the actual size of the snake
+snake* snSInitSnake(coords pos, Allocator* allc); // Inits a snake at a given position
+void snSDeleteSnake(snake* self);                 // Free snake from memory
+void snSSetSize(snake* self, int size);           // Sets snake size
+void snSMoveHeadPos(snake* self, coords pos);     // Updates the snake coordinates
+int snSGetSize(snake* self);                      // Get the actual size of the snake
 
 /// Private helpers
 
