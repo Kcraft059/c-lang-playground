@@ -18,7 +18,7 @@
           libgpiod # Linux GPIO lib
           lgpio # Simplified GPIO lib
 
-          linuxPackages.kernel.dev
+          # linuxPackages.kernel.dev
           # pigpio # Pi-specific GPIO control
           gnumake
           bear
@@ -31,7 +31,6 @@
             Add:
               - -I${pkgs.glibc.dev}/include
               - -I${pkgs.lgpio}/include
-              - -I${pkgs.linuxPackages.kernel.dev}/lib/modules/6.12.63/source/include
           EOF
 
           exec ${pkgs.zsh}/bin/zsh

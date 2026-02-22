@@ -1,0 +1,9 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+ColumnLimit: 0          # disables auto line wrapping
+BreakBeforeBraces: Attach
+DerivePointerAlignment: false
+PointerAlignment: Left
+BinPackParameters: false
+AllowShortBlocksOnASingleLine : Always
+AllowShortIfStatementsOnASingleLine : AllIfsAndElse
